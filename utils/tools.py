@@ -1,13 +1,11 @@
-from langchain_chroma import Chroma
 from typing import List, Dict, Any, Optional, Literal
 from .store import build_self_query_retriever
 from langchain_openai import ChatOpenAI
 import os
-import re
-from datetime import datetime
-import requests
 from dotenv import load_dotenv
-
+from .store import build_vector_store
+from pydantic import BaseModel
+from raw_data import get_data
 
 load_dotenv()
 llm = ChatOpenAI(
@@ -16,12 +14,15 @@ llm = ChatOpenAI(
     model="google/gemini-2.0-flash-001",
 )
 
+class Data(BaseModel):
+    href: str
+
+data = []
 
 # vector_store needs to be initialized with tasks data
-# vector_store = build_vector_store(tasks)
+vector_store = build_vector_store(data)
 
-
-def store_search(query: str, vector_store: Any) -> Dict[str, Any]:
+def store_search(query: str) -> Dict[str, Any]:
     # , filter: Optional[Dict[str, str]] = None
     """
     Search for tasks related to query and return tasks.

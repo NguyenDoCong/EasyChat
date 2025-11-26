@@ -20,35 +20,12 @@
  */
 
 function initializeChatbot(config) {
-    const {
-        current_url = '',
-        extra_urls = [],
-        prefixes = [],
-        chatbotName = 'PocketFlow Website Chatbot',
-        wsUrl = '/api/ws/chat',
-        instruction = '',
-        isOpen = false,
-        theme = 'auto'
-    } = config;
-
-    // Store original config for URL updates
-    window._pocketflowOriginalConfig = config;
-
-    // Track if current_url was explicitly provided
-    const wasCurrentUrlProvided = Boolean(current_url);
-
-    // Handle current_url being empty - use current page URL
-    let finalCurrentUrl = current_url;
-    if (!finalCurrentUrl) {
-        finalCurrentUrl = window.location.href;
-    }
-
+    
     // Theme detection and configuration
     let currentTheme = 'light'; // Default theme
 
     // Simplified theme detection
     function detectTheme() {
-        if (theme === 'light' || theme === 'dark') return theme;
 
         const html = document.documentElement;
         const body = document.body;
@@ -852,7 +829,6 @@ function initializeChatbot(config) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
                 </button>
                 <span id="pocketflow-connection-status"></span>
-                <span class="header-title" id="pocketflow-chat-title">${chatbotName}</span>
                 <button id="pocketflow-chat-close-button" class="pocketflow-chat-header-button" aria-label="Close chat">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
@@ -906,10 +882,6 @@ function initializeChatbot(config) {
         // Append elements to body
         document.body.appendChild(chatIcon);
         document.body.appendChild(chatWindow);
-
-        // Setup theme detection and observer
-        setupThemeObserver();
-        updateChatbotTheme(currentTheme);
 
         return { chatIcon, chatWindow };
     }
@@ -972,7 +944,6 @@ function initializeChatbot(config) {
 
         // Update welcome message with current URL
         const welcomeMessage = document.getElementById('pocketflow-chat-welcome-message');
-        welcomeMessage.innerHTML = `Welcome! I'm here to help you with questions about: <a href="${finalCurrentUrl}" target="_blank" style="color: var(--chatbot-primary); text-decoration: none;">${finalCurrentUrl}</a>. What would you like to know?`;
 
         // Add event listener for the initial copy button
         const initialCopyButton = document.querySelector('.pocketflow-message-container .pocketflow-message-actions .pocketflow-copy-button');

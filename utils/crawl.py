@@ -30,11 +30,29 @@ def crawl(url):
             # print(link.get('href'))
             links.append(link.get('href'))
 
+        images = []
+
+        for image in soup.find_all('img'):
+            # print(link.get('href'))
+            if 'products' in image['src']:
+                images.append(image['src'])
+
+        image = images[0] if images else ""
+        
         # print(response.output_text)
         # return response.output_text
     except Exception as e:
         print(f"Error crawling {url}: {e}")
         text = ""
         links = []
+        images = []
+        image = ""
 
-    return url, text, links
+    return url, text, links, image
+
+if __name__ == "__main__":
+    url = "https://rangdong.com.vn/category/den-led-chieu-sang"
+    url, text, links, images = crawl(url)
+    print(images[0])
+    # for img in images:
+    #     print(img)

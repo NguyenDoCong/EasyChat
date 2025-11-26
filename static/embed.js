@@ -1,5 +1,5 @@
 (function () {
-    async function fetchOverlayData(url = window.location.origin) {
+    async function fetchOverlayData(url = window.location.href) {
         try {
             console.log('Fetching data for:', url);
 

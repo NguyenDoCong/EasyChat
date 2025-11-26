@@ -65,5 +65,5 @@ def build_self_query_retriever(llm, vector_store: Chroma, examples: Optional[Lis
     # For now, use the simpler as_retriever approach
     return vector_store.as_retriever(
         search_type="similarity",
-        search_kwargs={"k": 40}
+        search_kwargs={"k": 3}
     )

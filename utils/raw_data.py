@@ -1,44 +1,34 @@
 from langchain_core.documents import Document
-from datetime import datetime
+from pydantic import BaseModel
+from urllib.parse import urlparse
+from concurrent.futures import ThreadPoolExecutor
+from utils.crawl import crawl
+from utils.url_validator import filter_valid_urls
 
-def get_all_tasks():
-    """Get all tasks."""
+class Data(BaseModel):
+    href: str
 
-    results = []
-    for response in responses:
-        assignees = " and ".join(response["assignees"])
-        comments  = " and ".join(response["comments"])
-        try:
-            date_obj = datetime.strptime(response['start_date'], "%Y-%m-%d")
-            start_date = date_obj.timestamp()
-        except Exception as e:
-            # print(e)
-            start_date = None
-        try:
-            date_obj = datetime.strptime(response['target_date'], "%Y-%m-%d")
-            target_date = date_obj.timestamp()
-        except Exception as e:
-            # print(e)
-            target_date = None
-        try:
-            completed_at = date_obj.timestamp()
-        except Exception as e:
-            # print(e)
-            completed_at = None
-        content = f"This is a task that has name: {response['name']}, assignees: {assignees}, \
-            'comments': {comments}, 'start date': {response['start_date']}, 'target date': {response['target_date']}, \
-            'description': {response['description']}, \
-            'priority': {response['priority']}, 'state': {response['state']}."
-        metadata = {"task id": str(response['id']),
-                    "priority": str(response['priority']), 
-                    "state": str(response['state']), 
-                    "start date": start_date, 
-                    "target date": target_date, 
-                    "completed at": completed_at,
-                    "project name": str(response['project_name'])
-                    }
-        document = Document(page_content=content, metadata=metadata)
-        results.append(document)
+def get_data(href: str) -> list[Document]:
+    """Get all data."""
+
+    url, content, links, _ = crawl(href)
+    print(f"Crawled {url}: {len(content)} characters, {len(links)} links")
+    parsed = urlparse(url)
+    valid_links = filter_valid_urls(links, [parsed.hostname])
+    filtered_links = list(set(valid_links))
+    with ThreadPoolExecutor(max_workers=500) as executor:
+        results = executor.map(crawl, filtered_links)
+
+    documents = []
+
+    for result in results:
+        # print("-------------------")
+        # print(f"url:{result[0]}")  
+        # print(f"content:{result[1][:50]}")  
+        if "Giá bán lẻ đề xuất" not in result[1]:
+            continue
+        document = Document(page_content=result[1], metadata={"source": result[0], "image": result[3]})
+        documents.append(document)
 
     # pprint.pprint(results)
-    return results
+    return documents
