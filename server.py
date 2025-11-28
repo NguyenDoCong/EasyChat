@@ -13,16 +13,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from utils.crawl import crawl
 from pydantic import BaseModel
 import uvicorn
-from agent import agent_builder, build_retriever
+# from agent import agent_builder, build_retriever
+from chain import initialize_retriever
 from langchain_core.messages import HumanMessage
 import asyncio
 from typing import Dict
 import json
+from chain import llm_agent
+from agent import agent_builder
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -38,6 +40,7 @@ app.add_middleware(
 
 # Mount static files (HTML, CSS, JS)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 def validate_and_sanitize_input(
     question: str, instruction: str = ""
@@ -70,6 +73,7 @@ def validate_and_sanitize_input(
 
     return question.strip(), instruction.strip()
 
+
 # async def generate_route(message: str):
 #     graph = agent_builder.compile()
 #     graph.name = "LangGraphDeployDemo"
@@ -83,11 +87,14 @@ def validate_and_sanitize_input(
 #         print(e)
 #         return "Error occurred, please try again later."
 
+
 class Data(BaseModel):
     message: str
 
+
 class Info(BaseModel):
     href: str
+
 
 @app.post("/hover")
 def receive_hover(data: Data):
@@ -102,49 +109,102 @@ def receive_hover(data: Data):
     except Exception as e:
         logger.error(f"Error in /hover endpoint: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
 @app.post("/init")
 async def create_store(info: Info):
     """Build vector store."""
     logger.info(f"Initializing vector store for URL: {info.href}")
     try:
-        build_retriever(info.href)
+        initialize_retriever(info.href)
         logger.info("Vector store initialized successfully")
         return {"message": "Vector store created successfully."}
     except Exception as e:
         logger.error(f"Error in /init endpoint: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.post("/crawl")
 async def crawl_url(data: Data):
     logger.info(f"Received crawl request for URL: {data.message}")
     try:
         logger.info("Compiling graph...")
-        graph = agent_builder.compile()
+        # graph = agent_builder.compile()
         logger.info("Graph compiled successfully")
-        
+
         logger.info("Creating HumanMessage...")
         messages = [HumanMessage(content=data.message)]
-        
+
         logger.info("Invoking graph...")
-        result = graph.invoke({"messages": messages})
-        logger.info(f"Graph invocation completed, messages count: {len(result.get('messages', []))}")
-        
+        result = llm_agent.invoke({"messages": messages})
+        logger.info(
+            f"Graph invocation completed, messages count: {len(result.get('messages', []))}"
+        )
+
         for i, m in enumerate(result["messages"]):
             logger.debug(f"Message {i}: {type(m).__name__}")
             m.pretty_print()
-        
+
         # Extract the last message content
         last_message = result["messages"][-1]
         logger.info(f"Last message type: {type(last_message).__name__}")
-        response_content = getattr(last_message, 'content', str(last_message))
-        logger.info(f"Response content length: {len(str(response_content))}")
+    
+        response_content = getattr(last_message, "content", str(last_message))
+        # json_content = json.loads(response_content)
+        # print("Response Content:", json_content)
+        pattern = r"(\w+)\s*=\s*'([^']*)'"
+        result = dict(re.findall(pattern, response_content))
+
+        url = result['url']
+        name = result['name']
+        price = result['price']
+        specs = result['specs']
+        src = result['src']
+
+        print(url, name, price, specs, src, sep="\n")
         
-        return {"message": response_content}
+        # logger.info(f"Response content length: {len(str(json_content))}")
+
+        html = f"""<div class="chatbot-table">
+        <table>
+            <thead>
+                <th>Tên</th>
+                <th>Giá</th>
+                <th>Đặc điểm</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><a href={url} target="_self">{name}</a></td>
+                    <td>{price}</td>
+                    <td>{specs}</td>
+                </tr>
+            </tbody>
+        </table>
+    <div>
+    <div class="product-grid">
+      <div class="product-card">
+        <a href={url} class="product-image-wrapper">
+          <img src={src} alt="NAME" class="product-image">
+        </a>
+        <div class="product-content">
+          <a href={url} class="product-name">{name}</a>
+          <div class="price-wrapper">
+            <div class="price">{price}</div>
+          </div>
+        </div>
+        <button class="add-to-cart-btn" onclick="window.open('URL', '_blank')">
+          [SVG ICON]
+          Thêm vào giỏ
+        </button>
+      </div>
+    </div>"""
+
+        return {"message": html}
 
     except Exception as e:
         logger.error(f"Error in /crawl endpoint: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/", response_class=HTMLResponse)
 async def get_root(request: Request):
@@ -355,5 +415,4 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 if __name__ == "__main__":
-  
     uvicorn.run(app, host="0.0.0.0", port=8000)

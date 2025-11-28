@@ -1,14 +1,13 @@
 from langchain_openai import ChatOpenAI
 from langchain.tools import tool
 import os
-from langchain_core.messages import AnyMessage, SystemMessage, ToolMessage, HumanMessage
+from langchain_core.messages import AnyMessage, SystemMessage, ToolMessage
 from typing_extensions import TypedDict, Annotated
 import operator
 from typing import Literal
 from langgraph.graph import StateGraph, START, END
 from typing import Dict, Any
-from utils.store import build_vector_store, build_self_query_retriever
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from utils.raw_data import get_data
 import logging
 import getpass
@@ -19,18 +18,29 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 from langchain_ollama import OllamaEmbeddings
 from uuid import uuid4
+from langchain.agents import create_agent
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
 
-llm = ChatOpenAI(
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    base_url=os.getenv("OPENROUTER_BASE_URL"),
-    model="x-ai/grok-4.1-fast:free",
-)
+# llm = ChatOpenAI(
+#     api_key=os.getenv("OPENROUTER_API_KEY"),
+#     base_url=os.getenv("OPENROUTER_BASE_URL"),
+#     model="openai/gpt-oss-20b:free",
+# )
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
+# client = OpenAI(
+#     base_url="https://openrouter.ai/api/v1",
+#     api_key=os.getenv("OPENROUTER_API_KEY"),
+# )
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.0-flash",
+    temperature=0,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+    # other params...
 )
 
 embeddings = OllamaEmbeddings(model="mxbai-embed-large:latest")
@@ -124,13 +134,26 @@ def store_search(query: str) -> Dict[str, Any]:
     except Exception as e:
         print(f"Error during store_search: {e}")
         return {"error": str(e)}
+    
+class ContactInfo(BaseModel):
+    """Information for a product."""
 
+    url: str = Field(description="The url of the product")
+    name: str = Field(description="The name of the product")
+    price: str = Field(description="The price of the product")
+    specs: str = Field(description="The specifications of the product")
+    src: str = Field(description="The image src link of the product")
 
 # Augment the LLM with tools
 tools = [store_search]
 tools_by_name = {tool.name: tool for tool in tools}
-model_with_tools = llm.bind_tools(tools)
+# model_with_tools = llm.bind_tools(tools)
 
+llm_agent = create_agent(
+    llm,
+    tools=tools,    
+    response_format=ContactInfo,  # Auto-selects ProviderStrategy
+)
 
 class MessagesState(TypedDict):
     messages: Annotated[list[AnyMessage], operator.add]
@@ -142,56 +165,22 @@ def llm_call(state: dict):
     logger.info("llm_call node invoked")
     try:
         logger.info(f"Current message count: {len(state.get('messages', []))}")
-        response = model_with_tools.invoke(
-            [
-                SystemMessage(
-                    content="""You are a helpful assistant tasked with returning relevant answer based on a set of inputs.
-                    If you make the final response, then the response should follow the format below. 
-                    Look for relevant information to fill in the relevant position in the format, e.g. price, summarize information if needed, e.g. for features. 
-                    Find image src link from the metadata images field.
-        Response Instructions:
-
-    Provide your response in Markdown format. If possible, create table following this format:
-    <div class="chatbot-table">
-        <table>
-            <thead>
-                <th>Tên</th>
-                <th>Giá</th>
-                <th>Đặc điểm</th>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><a href="https://rangdongstore.vn/bong-den-led-bulb-hoa-cuc-a60hcyw-ip65-p-230228003459?utm_source=easyai" target="_self">Bóng đèn LED Bulb Hoa Cúc A60.HC/YW IP65</a></td>
-                    <td>54,460</td>
-                    <td>Thời gian khởi động < 0,5 giây</td>
-                </tr>
-            </tbody>
-        </table>
-    <div>
-    using data that you have, then create a card for each link following this format:
-    <div class="product-grid">
-      <div class="product-card">
-        <a href="URL" class="product-image-wrapper">
-          <img src="IMAGE" alt="NAME" class="product-image">
-        </a>
-        <div class="product-content">
-          <a href="URL" class="product-name">TÊN SẢN PHẨM</a>
-          <div class="price-wrapper">
-            <div class="price">GIÁ</div>
-          </div>
-        </div>
-        <button class="add-to-cart-btn" onclick="window.open('URL', '_blank')">
-          [SVG ICON]
-          Thêm vào giỏ
-        </button>
-      </div>
-    </div>
-                    """
-                )
-            ]
-            + state["messages"]
+        response_dict = llm_agent.invoke(
+            {
+                "messages": [
+                    SystemMessage(
+                        content="""You are a helpful assistant tasked with returning relevant answer based on a set of inputs.
+                        IMPORTANT: You only need to make 1 store_search tool call, then use the results to extract required information.
+                        """
+                    )
+                ]
+                + state["messages"]
+            }
         )
-        logger.info(f"LLM response type: {type(response).__name__}")
+        logger.info(f"LLM response type: {type(response_dict).__name__}")
+        # Extract the last message from the response
+        response = response_dict["messages"][-1] if isinstance(response_dict, dict) else response_dict
+        logger.info(f"Response message type: {type(response).__name__}")
         if hasattr(response, "tool_calls"):
             logger.info(f"Tool calls detected: {len(response.tool_calls)}")
 
@@ -238,7 +227,7 @@ def should_continue(state: MessagesState) -> Literal["tool_node", "END"]:
     last_message = messages[-1]
 
     # If the LLM makes a tool call, then perform an action
-    if last_message.tool_calls:
+    if hasattr(last_message, "tool_calls") and last_message.tool_calls:
         return "tool_node"
 
     # Otherwise, we stop (reply to the user)
