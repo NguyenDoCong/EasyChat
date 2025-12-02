@@ -21,6 +21,17 @@ from typing import Dict
 import json
 from chain import llm_agent
 from agent import agent_builder
+from ddgs import DDGS
+from openai import OpenAI
+from langchain_openai import ChatOpenAI
+import os
+from utils.web_crawler import crawl_webpage
+
+llm = ChatOpenAI(
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url=os.getenv("OPENROUTER_BASE_URL"),
+    model="openai/gpt-oss-20b:free",
+)
 
 # Configure logging
 logging.basicConfig(
@@ -116,7 +127,7 @@ async def create_store(info: Info):
     """Build vector store."""
     logger.info(f"Initializing vector store for URL: {info.href}")
     try:
-        initialize_retriever(info.href)
+        await initialize_retriever(info.href)
         logger.info("Vector store initialized successfully")
         return {"message": "Vector store created successfully."}
     except Exception as e:
@@ -128,76 +139,101 @@ async def create_store(info: Info):
 async def crawl_url(data: Data):
     logger.info(f"Received crawl request for URL: {data.message}")
     try:
-        logger.info("Compiling graph...")
-        # graph = agent_builder.compile()
-        logger.info("Graph compiled successfully")
+        results = DDGS().text(f"{data.message} site:https://rangdong.com.vn/", max_results=10)
 
-        logger.info("Creating HumanMessage...")
-        messages = [HumanMessage(content=data.message)]
+        selected_urls = []
 
-        logger.info("Invoking graph...")
-        result = llm_agent.invoke({"messages": messages})
-        logger.info(
-            f"Graph invocation completed, messages count: {len(result.get('messages', []))}"
-        )
+        for result in results:
+            completion = llm.chat.completions.create(
+            messages=[
+                {
+                "role": "user",
+                "content": f"Is {result['title']} related to {data.message}? Only return 'yes' or 'no'."
+                }
+            ]
+            )
+            print(completion.choices[0].message.content)
+            if "yes" in completion.choices[0].message.content.lower():
+                selected_urls.append(result['href'])
 
-        for i, m in enumerate(result["messages"]):
-            logger.debug(f"Message {i}: {type(m).__name__}")
-            m.pretty_print()
+        # crawled_pages = []
 
-        # Extract the last message content
-        last_message = result["messages"][-1]
-        logger.info(f"Last message type: {type(last_message).__name__}")
+        for url in selected_urls:
+            print(f"Selected URL: {url}")
+            link, clean_text, links, image = crawl_webpage(url)
+            # crawled_pages.append((page_data))
+
+
+        # logger.info("Compiling graph...")
+        # # graph = agent_builder.compile()
+        # logger.info("Graph compiled successfully")
+
+        # logger.info("Creating HumanMessage...")
+        # messages = [HumanMessage(content=data.message)]
+
+        # logger.info("Invoking graph...")
+        # result = llm_agent.invoke({"messages": messages})
+        # logger.info(
+        #     f"Graph invocation completed, messages count: {len(result.get('messages', []))}"
+        # )
+
+        # for i, m in enumerate(result["messages"]):
+        #     logger.debug(f"Message {i}: {type(m).__name__}")
+        #     m.pretty_print()
+
+        # # Extract the last message content
+        # last_message = result["messages"][-1]
+        # logger.info(f"Last message type: {type(last_message).__name__}")
     
-        response_content = getattr(last_message, "content", str(last_message))
-        # json_content = json.loads(response_content)
-        # print("Response Content:", json_content)
-        pattern = r"(\w+)\s*=\s*'([^']*)'"
-        result = dict(re.findall(pattern, response_content))
+        # response_content = getattr(last_message, "content", str(last_message))
+        # # json_content = json.loads(response_content)
+        # # print("Response Content:", json_content)
+        # pattern = r"(\w+)\s*=\s*'([^']*)'"
+        # result = dict(re.findall(pattern, response_content))
 
-        url = result['url']
-        name = result['name']
-        price = result['price']
-        specs = result['specs']
-        src = result['src']
+            url = result['url']
+            name = result['name']
+            price = result['price']
+            specs = result['specs']
+            src = result['src']
 
-        print(url, name, price, specs, src, sep="\n")
-        
-        # logger.info(f"Response content length: {len(str(json_content))}")
+            print(url, name, price, specs, src, sep="\n")
+            
+            # logger.info(f"Response content length: {len(str(json_content))}")
 
-        html = f"""<div class="chatbot-table">
-        <table>
-            <thead>
-                <th>Tên</th>
-                <th>Giá</th>
-                <th>Đặc điểm</th>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><a href={url} target="_self">{name}</a></td>
-                    <td>{price}</td>
-                    <td>{specs}</td>
-                </tr>
-            </tbody>
-        </table>
-    <div>
-    <div class="product-grid">
-      <div class="product-card">
-        <a href={url} class="product-image-wrapper">
-          <img src={src} alt="NAME" class="product-image">
-        </a>
-        <div class="product-content">
-          <a href={url} class="product-name">{name}</a>
-          <div class="price-wrapper">
-            <div class="price">{price}</div>
-          </div>
+            html = f"""<div class="chatbot-table">
+            <table>
+                <thead>
+                    <th>Tên</th>
+                    <th>Giá</th>
+                    <th>Đặc điểm</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href={url} target="_self">{name}</a></td>
+                        <td>{price}</td>
+                        <td>{specs}</td>
+                    </tr>
+                </tbody>
+            </table>
+        <div>
+        <div class="product-grid">
+        <div class="product-card">
+            <a href={url} class="product-image-wrapper">
+            <img src={src} alt="NAME" class="product-image">
+            </a>
+            <div class="product-content">
+            <a href={url} class="product-name">{name}</a>
+            <div class="price-wrapper">
+                <div class="price">{price}</div>
+            </div>
+            </div>
+            <button class="add-to-cart-btn" onclick="window.open('URL', '_blank')">
+            [SVG ICON]
+            Thêm vào giỏ
+            </button>
         </div>
-        <button class="add-to-cart-btn" onclick="window.open('URL', '_blank')">
-          [SVG ICON]
-          Thêm vào giỏ
-        </button>
-      </div>
-    </div>"""
+        </div>"""
 
         return {"message": html}
 

@@ -430,7 +430,7 @@
                 }
             }
 
-            fetchOverlayData();
+            // fetchOverlayData();
 
             try {
                 await loadScript('https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js');

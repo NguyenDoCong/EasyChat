@@ -49,7 +49,7 @@ embeddings = OllamaEmbeddings(model="mxbai-embed-large:latest")
 current_retriever = None
 _initialized = False
 
-def initialize_retriever(href: str = None):
+async def initialize_retriever(href: str = None):
     """Initialize retriever once and reuse"""
     global current_retriever, _initialized
     
@@ -59,7 +59,7 @@ def initialize_retriever(href: str = None):
     if href is None:
         raise ValueError("href is required for first initialization")
     
-    documents = get_data(href)
+    documents = await get_data(href)
     client = QdrantClient(":memory:")
     
     client.create_collection(
@@ -73,8 +73,8 @@ def initialize_retriever(href: str = None):
         embedding=embeddings,
     )
     
-    uuids = [str(uuid4()) for _ in range(len(documents))]
-    vector_store.add_documents(documents=documents, ids=uuids)
+    # uuids = [str(uuid4()) for _ in range(len(documents))]
+    vector_store.add_documents(documents=documents)
     
     current_retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 3})
     _initialized = True
