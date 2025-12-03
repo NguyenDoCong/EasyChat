@@ -53,7 +53,7 @@ if __name__ == "__main__":
     import asyncio
     
     async def main():
-        test_url = "https://rangdong.com.vn/category/den-led-chieu-sang"
+        test_url = "https://rangdong.com.vn/den-ban-led-cam-ung-pr1716.html"
         
         url, content, links, img = await crawl_webpage(test_url)
         

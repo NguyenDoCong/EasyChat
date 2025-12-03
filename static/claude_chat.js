@@ -482,9 +482,15 @@
             messageDiv.className = `message ${type}`;
 
             if (type === 'bot') {
-                // Parse markdown for bot messages
-                const html = await this.renderMarkdown(content);
-                messageDiv.innerHTML = html;
+                // Check if content is JSON object (products)
+                if (typeof content === 'object' && content.type === 'products') {
+                    const html = this.renderProducts(content.data);
+                    messageDiv.innerHTML = html;
+                } else {
+                    // Parse markdown for text content
+                    const html = await this.renderMarkdown(content);
+                    messageDiv.innerHTML = html;
+                }
             } else {
                 // Plain text for user and system messages
                 messageDiv.textContent = content;
@@ -492,6 +498,81 @@
 
             this.messagesArea.appendChild(messageDiv);
             this.scrollToBottom();
+        }
+
+        renderProducts(products) {
+            if (!Array.isArray(products) || products.length === 0) {
+                return '<p>Không tìm thấy sản phẩm</p>';
+            }
+
+            // Render table
+            let table = `
+                <div class="products-container">
+                    <h3>Kết quả tìm kiếm</h3>
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Tên sản phẩm</th>
+                                <th>Giá</th>
+                                <th>Đặc điểm</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            products.forEach(product => {
+                table += `
+                    <tr>
+                        <td><a href="${this.escapeHtml(product.link)}" target="_blank">${this.escapeHtml(product.name)}</a></td>
+                        <td>${this.escapeHtml(product.price)}</td>
+                        <td>${this.escapeHtml(product.specs)}</td>
+                    </tr>
+                `;
+            });
+
+            table += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            // Render grid
+            let grid = '<div class="product-grid">';
+
+            products.forEach(product => {
+                grid += `
+                    <div class="product-card">
+                        <a href="${this.escapeHtml(product.link)}" target="_blank" class="product-image-wrapper">
+                            <img src="${this.escapeHtml(product.image)}" alt="${this.escapeHtml(product.name)}" class="product-image" onerror="this.src='https://via.placeholder.com/200'">
+                        </a>
+                        <div class="product-content">
+                            <a href="${this.escapeHtml(product.link)}" target="_blank" class="product-name">${this.escapeHtml(product.name)}</a>
+                            <div class="product-specs">${this.escapeHtml(product.specs)}</div>
+                            <div class="price-wrapper">
+                                <div class="price">${this.escapeHtml(product.price)}</div>
+                            </div>
+                            <button class="add-to-cart-btn" onclick="window.open('${this.escapeHtml(product.link)}', '_blank')">
+                                Xem chi tiết
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid += '</div>';
+
+            return table + grid;
+        }
+
+        escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
 
         showTyping() {
@@ -549,7 +630,14 @@
                 this.hideTyping();
 
                 // Add bot response (with markdown support)
-                await this.addMessage(data.message || data.response || 'Không có phản hồi từ server', 'bot');
+                // await this.addMessage(data.message || data.response || 'Không có phản hồi từ server', 'bot');
+
+                // Xử lý response - có thể là products hoặc text
+                if (data.type === 'products') {
+                    await this.addMessage(data, 'bot');
+                } else {
+                    await this.addMessage(data.message || data.response || 'Không có phản hồi từ server', 'bot');
+                }
 
             } catch (error) {
                 console.error('Error:', error);

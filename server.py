@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from utils.crawl import crawl
 from pydantic import BaseModel
 import uvicorn
+
 # from agent import agent_builder, build_retriever
 from chain import initialize_retriever
 from langchain_core.messages import HumanMessage
@@ -26,12 +27,8 @@ from openai import OpenAI
 from langchain_openai import ChatOpenAI
 import os
 from utils.web_crawler import crawl_webpage
+from google import genai
 
-llm = ChatOpenAI(
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    base_url=os.getenv("OPENROUTER_BASE_URL"),
-    model="openai/gpt-oss-20b:free",
-)
 
 # Configure logging
 logging.basicConfig(
@@ -135,107 +132,125 @@ async def create_store(info: Info):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+class ExtractedInfos(BaseModel):
+    price: str
+    specs: str
+
+
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+)
+
+client = genai.Client()
+
+
 @app.post("/crawl")
 async def crawl_url(data: Data):
     logger.info(f"Received crawl request for URL: {data.message}")
     try:
-        results = DDGS().text(f"{data.message} site:https://rangdong.com.vn/", max_results=10)
+        results = DDGS().text(
+            f"{data.message} site:https://rangdong.com.vn/", max_results=5
+        )
 
         selected_urls = []
 
         for result in results:
-            completion = llm.chat.completions.create(
-            messages=[
-                {
-                "role": "user",
-                "content": f"Is {result['title']} related to {data.message}? Only return 'yes' or 'no'."
-                }
-            ]
-            )
-            print(completion.choices[0].message.content)
-            if "yes" in completion.choices[0].message.content.lower():
-                selected_urls.append(result['href'])
+            # completion = client.chat.completions.create(
+            #     model="openai/gpt-oss-20b:free",
+            #     messages=[
+            #         {
+            #             "role": "user",
+            #             "content": f"Is {result['title']} related to {data.message}? Only return 'yes' or 'no'.",
+            #         }
+            #     ],
+            # )
+
+            # # chọn ra các url liên quan tới từ khoá
+            # response = client.models.generate_content(
+            #     model="gemini-2.0-flash",
+            #     contents=f"Is {result['title']} related to {data.message}? Only return 'yes' or 'no'.",
+            # )
+
+            # print(completion.choices[0].message.content)
+            # if "yes" in completion.choices[0].message.content.lower():
+            #     selected_urls.append(result["href"])
+
+            if re.search(re.escape(data.message), result["title"], re.IGNORECASE):
+                selected_urls.append(result)
+
+            # print(response.text)
+            # if "yes" in response.text.lower():
+            #     selected_urls.append(result["href"])
 
         # crawled_pages = []
 
+        products = []
+
         for url in selected_urls:
-            print(f"Selected URL: {url}")
-            link, clean_text, links, image = crawl_webpage(url)
-            # crawled_pages.append((page_data))
+            print(f"Selected URL: {url['href']}")
+            link, clean_text, links, image = await crawl_webpage(url["href"])
 
-
-        # logger.info("Compiling graph...")
-        # # graph = agent_builder.compile()
-        # logger.info("Graph compiled successfully")
-
-        # logger.info("Creating HumanMessage...")
-        # messages = [HumanMessage(content=data.message)]
-
-        # logger.info("Invoking graph...")
-        # result = llm_agent.invoke({"messages": messages})
-        # logger.info(
-        #     f"Graph invocation completed, messages count: {len(result.get('messages', []))}"
-        # )
-
-        # for i, m in enumerate(result["messages"]):
-        #     logger.debug(f"Message {i}: {type(m).__name__}")
-        #     m.pretty_print()
-
-        # # Extract the last message content
-        # last_message = result["messages"][-1]
-        # logger.info(f"Last message type: {type(last_message).__name__}")
-    
-        # response_content = getattr(last_message, "content", str(last_message))
-        # # json_content = json.loads(response_content)
-        # # print("Response Content:", json_content)
-        # pattern = r"(\w+)\s*=\s*'([^']*)'"
-        # result = dict(re.findall(pattern, response_content))
-
-            url = result['url']
-            name = result['name']
-            price = result['price']
-            specs = result['specs']
-            src = result['src']
-
-            print(url, name, price, specs, src, sep="\n")
+            if re.search("giá", clean_text, re.IGNORECASE):
             
-            # logger.info(f"Response content length: {len(str(json_content))}")
+                name = url["title"]
+                # crawled_pages.append((page_data))
+                # s = ''.join(clean_text)
+                s = clean_text[:10000]  # Giới hạn độ dài văn bản đầu vào
 
-            html = f"""<div class="chatbot-table">
-            <table>
-                <thead>
-                    <th>Tên</th>
-                    <th>Giá</th>
-                    <th>Đặc điểm</th>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><a href={url} target="_self">{name}</a></td>
-                        <td>{price}</td>
-                        <td>{specs}</td>
-                    </tr>
-                </tbody>
-            </table>
-        <div>
-        <div class="product-grid">
-        <div class="product-card">
-            <a href={url} class="product-image-wrapper">
-            <img src={src} alt="NAME" class="product-image">
-            </a>
-            <div class="product-content">
-            <a href={url} class="product-name">{name}</a>
-            <div class="price-wrapper">
-                <div class="price">{price}</div>
-            </div>
-            </div>
-            <button class="add-to-cart-btn" onclick="window.open('URL', '_blank')">
-            [SVG ICON]
-            Thêm vào giỏ
-            </button>
-        </div>
-        </div>"""
+                # response = client.responses.parse(
+                #     model="openai/gpt-oss-20b:free",
+                #     input=[
+                #         {"role": "system", "content": "Extract the product information."},
+                #         {
+                #             "role": "user",
+                #             "content": s,
+                #         },
+                #     ],
+                #     text_format=ExtractedInfos,
+                # )
 
-        return {"message": html}
+                response = client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=f"Extract the product information from the following text:\n {clean_text}",
+                    config={
+                        "response_mime_type": "application/json",
+                        "response_json_schema": ExtractedInfos.model_json_schema(),
+                    },
+                )
+
+                # infos = response.output_parsed
+                infos = ExtractedInfos.model_validate_json(response.text)
+
+                # for i, m in enumerate(result["messages"]):
+                #     logger.debug(f"Message {i}: {type(m).__name__}")
+                #     m.pretty_print()
+
+                # # Extract the last message content
+                # last_message = result["messages"][-1]
+                # logger.info(f"Last message type: {type(last_message).__name__}")
+
+                # response_content = getattr(last_message, "content", str(last_message))
+                # # json_content = json.loads(response_content)
+                # # print("Response Content:", json_content)
+                # pattern = r"(\w+)\s*=\s*'([^']*)'"
+                # result = dict(re.findall(pattern, response_content))
+
+                # if not re.search("N/A", infos.price, re.IGNORECASE):
+        
+                products.append({
+                            "name": name,
+                            "price": infos.price,
+                            "specs": infos.specs,
+                            "link": link,
+                            "image": image
+                        })
+
+        return {
+            "status": "success",
+            "type": "products",
+            "data": products
+        }
 
     except Exception as e:
         logger.error(f"Error in /crawl endpoint: {str(e)}", exc_info=True)
