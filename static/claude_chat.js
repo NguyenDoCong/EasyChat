@@ -521,11 +521,18 @@
             `;
 
             products.forEach(product => {
+                // Ensure data is string
+                const name = String(product.name || 'N/A');
+                const price = String(product.price || 'Liên hệ');
+                const specs = String(product.specs || 'Không có thông tin');
+                const link = String(product.link || '#');
+                const image = String(product.image || '');
+
                 table += `
                     <tr>
-                        <td><a href="${this.escapeHtml(product.link)}" target="_blank">${this.escapeHtml(product.name)}</a></td>
-                        <td>${this.escapeHtml(product.price)}</td>
-                        <td>${this.escapeHtml(product.specs)}</td>
+                        <td><a href="${this.escapeHtml(link)}" target="_blank">${this.escapeHtml(name)}</a></td>
+                        <td>${this.escapeHtml(price)}</td>
+                        <td>${this.escapeHtml(specs)}</td>
                     </tr>
                 `;
             });
@@ -540,18 +547,24 @@
             let grid = '<div class="product-grid">';
 
             products.forEach(product => {
+                const name = String(product.name || 'N/A');
+                const link = String(product.link || '#');
+                const image = String(product.image || '');
+                const price = String(product.price || 'Liên hệ');
+                const specs = String(product.specs || 'Không có thông tin');
+
                 grid += `
                     <div class="product-card">
-                        <a href="${this.escapeHtml(product.link)}" target="_blank" class="product-image-wrapper">
-                            <img src="${this.escapeHtml(product.image)}" alt="${this.escapeHtml(product.name)}" class="product-image" onerror="this.src='https://via.placeholder.com/200'">
+                        <a href="${this.escapeHtml(link)}" target="_blank" class="product-image-wrapper">
+                            <img src="${this.escapeHtml(image)}" alt="${this.escapeHtml(name)}" class="product-image" onerror="this.src='https://via.placeholder.com/200x150?text=No+Image'">
                         </a>
                         <div class="product-content">
-                            <a href="${this.escapeHtml(product.link)}" target="_blank" class="product-name">${this.escapeHtml(product.name)}</a>
-                            <div class="product-specs">${this.escapeHtml(product.specs)}</div>
+                            <a href="${this.escapeHtml(link)}" target="_blank" class="product-name">${this.escapeHtml(name)}</a>
+                            <div class="product-specs">${this.escapeHtml(specs)}</div>
                             <div class="price-wrapper">
-                                <div class="price">${this.escapeHtml(product.price)}</div>
+                                <div class="price">${this.escapeHtml(price)}</div>
                             </div>
-                            <button class="add-to-cart-btn" onclick="window.open('${this.escapeHtml(product.link)}', '_blank')">
+                            <button class="add-to-cart-btn" onclick="window.open('${this.escapeHtml(link)}', '_blank')">
                                 Xem chi tiết
                             </button>
                         </div>
