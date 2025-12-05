@@ -10,7 +10,7 @@ async def crawl_webpage(url):
 
         # r.html.render(timeout=20)
 
-        return r
+        return r, url
 
         clean_text = r.html.text
 
@@ -24,7 +24,7 @@ async def crawl_webpage(url):
     except Exception as e:
         print(f"Error crawling {url}: {e}")
 
-        return None
+        return None, ""
 
         return url, "", [], ""
     

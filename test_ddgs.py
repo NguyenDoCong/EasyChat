@@ -1,7 +1,7 @@
 from ddgs import DDGS
 import pprint
 
-results = DDGS().text("đèn bàn site:https://rangdong.com.vn/", max_results=10)
+results = DDGS().text("đèn bàn site:https://rangdongstore.vn/", max_results=5)
 for result in results:
     print("--------------------------------")
     pprint.pprint(result)

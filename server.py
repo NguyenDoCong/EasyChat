@@ -98,21 +98,15 @@ def validate_and_sanitize_input(
 #         print(e)
 #         return "Error occurred, please try again later."
 
-
-class Data(BaseModel):
-    message: str
-
-
 class Info(BaseModel):
     href: str
 
-
 @app.post("/hover")
-def receive_hover(data: Data):
-    logger.info(f"User hovered: {data.href}")
+def receive_hover(info: Info):
+    logger.info(f"User hovered: {info.href}")
     try:
         logger.info("Crawling data...")
-        crawled_data = crawl(data.href)
+        crawled_data = crawl(info.href)
         logger.info(f"Crawl successful, data length: {len(crawled_data)}")
         clean = re.sub(r"<think>.*?</think>", "", crawled_data, flags=re.DOTALL).strip()
         logger.info(f"Cleaned data length: {len(clean)}")
@@ -148,14 +142,16 @@ client = OpenAI(
 client = genai.Client()
 
 
-async def extract_product_info(r):
+async def extract_product_info(r, url, root, query):
     try:
         name_element = r.html.find("title", first=True)
         name = name_element.text if name_element else "Unknown"
 
-        first_element = r.html.find("base", first=True)
+        # first_element = r.html.find("base", first=True)
 
-        link = first_element.attrs.get("href")
+        # link = first_element.attrs.get("href")
+
+        link = url
 
         print("Đang lấy thông tin của url:", link)
 
@@ -167,7 +163,16 @@ async def extract_product_info(r):
 
         images = r.html.find("img")
         img_src = [img.attrs.get("src") for img in images if img.attrs.get("src")]
-        image = img_src[0] if img_src else ""
+        img_alt = [img.attrs.get("alt") for img in images if img.attrs.get("alt")]
+        image = ""
+        for i in images:
+            print("-------------------------------")
+            alt = i.attrs.get("alt")
+            print(alt)
+            if str(query).lower() in str(alt).lower:
+                image = i.attrs.get("src")
+
+        print(f"Img src is {image} with root {root}")
 
         if re.search("giá", text, re.IGNORECASE):
             # name = url["title"]
@@ -230,10 +235,12 @@ async def extract_product_info(r):
             #             "link": link,
             #             "image": image
             #         })
+
+        return product  # ADD THIS LINE
+
     except Exception as e:
         logger.error(f"Error processing crawled data: {str(e)}", exc_info=True)
 
-    return product  # ADD THIS LINE
 
 
 def print_result(r):
@@ -243,12 +250,20 @@ def print_result(r):
     print(link)
 
 
+class Data(BaseModel):
+    message: str
+    url: str
+    root: str
+
+
 @app.post("/crawl")
 async def crawl_url(data: Data):
-    logger.info(f"Received crawl request for URL: {data.message}")
+    logger.info(f"Received crawl request {data.message} for URL: {data.url} from {data.root}")
+    print(f"Received crawl request {data.message} for URL: {data.url} from {data.root}")
+
     try:
         results = DDGS().text(
-            f"{data.message} site:https://rangdong.com.vn/", max_results=5
+            f"{data.message} site:{data.url}", max_results=1
         )
 
         selected_urls = []
@@ -269,7 +284,7 @@ async def crawl_url(data: Data):
         )
 
         products = await asyncio.gather(
-            *[extract_product_info(r) for r in results if r]
+            *[extract_product_info(r[0], r[1], data.root, data.message) for r in results if r]
         )
 
         # # for r in results:
@@ -360,13 +375,21 @@ async def crawl_url(data: Data):
 
 if __name__ == "__main__":
     # async def test():
-    #     r=await crawl_request_html("https://rangdong.com.vn/den-ban-led-cam-ung-pr1716.html")
-    #     clean_text = r.html.text
-    #     soup = BeautifulSoup(clean_text, 'html.parser')
-    #     text = soup.get_text()
-    #     print(text)
-    #     product =await extract_product_info(r)
-    #     print(product)
+        # results = DDGS().text(
+        #     f"đèn bàn site:https://rangdongstore.vn", max_results=5
+        # )
+        # for r in results:
+        #     print("------------------------------------------")
+        #     print(r)
+
+        # r=await crawl_request_html("https://rangdongstore.vn/den-ban-c-2201000039/")
+        # clean_text = r[0].html.text
+        # soup = BeautifulSoup(clean_text, 'html.parser')
+        # text = soup.get_text()
+        # print(clean_text)
+
+        # product =await extract_product_info(r[0],r[1],"https://rangdongstore.vn")
+        # print(product)
     # asyncio.run(test())
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
