@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 import uvicorn
 
 # from agent import agent_builder, build_retriever
-from chain import initialize_retriever
+from chain import initialize_retriever, store_search
 from langchain_core.messages import HumanMessage
 import asyncio
 from typing import Dict
@@ -32,6 +32,8 @@ from utils.crawl_request_html import crawl_webpage as crawl_request_html
 from requests_html import AsyncHTMLSession
 from bs4 import BeautifulSoup
 import concurrent.futures
+from langchain_core.documents import Document
+import pprint
 
 # Configure logging
 logging.basicConfig(
@@ -84,20 +86,6 @@ def validate_and_sanitize_input(
 
     return question.strip(), instruction.strip()
 
-
-# async def generate_route(message: str):
-#     graph = agent_builder.compile()
-#     graph.name = "LangGraphDeployDemo"
-#     thread_id = "3"
-#     config = {"configurable": {"thread_id": thread_id}}
-#     try:
-#         result = await graph.ainvoke({"messages": [{"role": "user", "content": {message}}]}, config)
-#         message = result["messages"][-1]
-#         return message.output_text
-#     except Exception as e:
-#         print(e)
-#         return "Error occurred, please try again later."
-
 class Info(BaseModel):
     href: str
 
@@ -117,11 +105,12 @@ def receive_hover(info: Info):
 
 
 @app.post("/init")
-async def create_store(info: Info):
+# async def create_store(info: Info):
+async def create_store(documents: Document):
     """Build vector store."""
-    logger.info(f"Initializing vector store for URL: {info.href}")
+    # logger.info(f"Initializing vector store for URL: {info.href}")
     try:
-        await initialize_retriever(info.href)
+        await initialize_retriever(documents)
         logger.info("Vector store initialized successfully")
         return {"message": "Vector store created successfully."}
     except Exception as e:
@@ -139,7 +128,7 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
-client = genai.Client()
+# client = genai.Client()
 
 
 async def extract_product_info(r, url, root, query):
@@ -148,7 +137,6 @@ async def extract_product_info(r, url, root, query):
         name = name_element.text if name_element else "Unknown"
 
         # first_element = r.html.find("base", first=True)
-
         # link = first_element.attrs.get("href")
 
         link = url
@@ -162,63 +150,81 @@ async def extract_product_info(r, url, root, query):
         # links = list(r.html.absolute_links)
 
         images = r.html.find("img")
-        img_src = [img.attrs.get("src") for img in images if img.attrs.get("src")]
-        img_alt = [img.attrs.get("alt") for img in images if img.attrs.get("alt")]
+        # img_src = [img.attrs.get("src") for img in images if img.attrs.get("src")]
+        # img_alt = [img.attrs.get("alt") for img in images if img.attrs.get("alt")]
         image = ""
+
+        documents = []
         for i in images:
-            print("-------------------------------")
-            alt = i.attrs.get("alt")
-            print(alt)
-            if str(query).lower() in str(alt).lower:
-                image = i.attrs.get("src")
+            # print("-------------------------------")
+            # alt = i.attrs.get("alt")
+            # print(alt)
+            # if str(query).lower() in str(alt).lower():
+            #     image = i.attrs.get("src")
+            document = Document(page_content=str(i.attrs.get("alt")), metadata={"src":str(i.attrs.get("src"))})
+            documents.append(document)
 
-        print(f"Img src is {image} with root {root}")
+        # print(f"Img src is {image} with root {root}")
 
-        if re.search("giá", text, re.IGNORECASE):
+        await create_store(documents)
+
+        doc = store_search(name)
+
+        print("image -------------------------------------------------------")
+
+        pprint.pprint(doc)
+
+        image = doc[0].metadata["src"]
+
+        # product = {}
+
+        # if re.search("giá", text, re.IGNORECASE):
             # name = url["title"]
             # crawled_pages.append((page_data))
             # s = ''.join(clean_text)
             # s = text[:10000]  # Giới hạn độ dài văn bản đầu vào
 
-            # response = client.responses.parse(
-            #     model="openai/gpt-oss-20b:free",
-            #     input=[
-            #         {"role": "system", "content": "Extract the product information."},
-            #         {
-            #             "role": "user",
-            #             "content": s,
-            #         },
-            #     ],
-            #     text_format=ExtractedInfos,
-            # )
-            # infos = response.output_parsed
-
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=f"Extract the product information from the following text:\n {text}",
-                config={
-                    "response_mime_type": "application/json",
-                    "response_json_schema": ExtractedInfos.model_json_schema(),
+        response = client.responses.parse(
+            model="openai/gpt-oss-20b:free",
+            input=[
+                {"role": "system", "content": "Extract the product information."},
+                {
+                    "role": "user",
+                    "content": text,
                 },
-            )
+            ],
+            text_format=ExtractedInfos,
+        )
+        infos = response.output_parsed
 
-            infos = ExtractedInfos.model_validate_json(response.text)
+        # response = client.models.generate_content(
+        #     model="gemini-2.0-flash",
+        #     contents=f"Extract the product information from the following text:\n {text}",
+        #     config={
+        #         "response_mime_type": "application/json",
+        #         "response_json_schema": ExtractedInfos.model_json_schema(),
+        #     },
+        # )
 
-            # for i, m in enumerate(result["messages"]):
-            #     logger.debug(f"Message {i}: {type(m).__name__}")
-            #     m.pretty_print()
+        # infos = ExtractedInfos.model_validate_json(response.text)
 
-            # # Extract the last message content
-            # last_message = result["messages"][-1]
-            # logger.info(f"Last message type: {type(last_message).__name__}")
+        # for i, m in enumerate(result["messages"]):
+        #     logger.debug(f"Message {i}: {type(m).__name__}")
+        #     m.pretty_print()
 
-            # response_content = getattr(last_message, "content", str(last_message))
-            # # json_content = json.loads(response_content)
-            # # print("Response Content:", json_content)
-            # pattern = r"(\w+)\s*=\s*'([^']*)'"
-            # result = dict(re.findall(pattern, response_content))
+        # # Extract the last message content
+        # last_message = result["messages"][-1]
+        # logger.info(f"Last message type: {type(last_message).__name__}")
 
-            # if not re.search("N/A", infos.price, re.IGNORECASE):
+        # response_content = getattr(last_message, "content", str(last_message))
+        # # json_content = json.loads(response_content)
+        # # print("Response Content:", json_content)
+        # pattern = r"(\w+)\s*=\s*'([^']*)'"
+        # result = dict(re.findall(pattern, response_content))
+
+        # if not re.search("N/A", infos.price, re.IGNORECASE):
+
+        try:
 
             product = {
                 "name": name,
@@ -228,19 +234,21 @@ async def extract_product_info(r, url, root, query):
                 "image": image,
             }
 
-            # products.append({
-            #             "name": name,
-            #             "price": infos.price,
-            #             "specs": infos.specs,
-            #             "link": link,
-            #             "image": image
-            #         })
+        except Exception as e:
+            print("Lỗi lấy thông tin sản phẩm", e)
+
+        # products.append({
+        #             "name": name,
+        #             "price": infos.price,
+        #             "specs": infos.specs,
+        #             "link": link,
+        #             "image": image
+        #         })
 
         return product  # ADD THIS LINE
 
     except Exception as e:
         logger.error(f"Error processing crawled data: {str(e)}", exc_info=True)
-
 
 
 def print_result(r):
@@ -255,6 +263,8 @@ class Data(BaseModel):
     url: str
     root: str
 
+class Answer(BaseModel):
+    bool_value: bool
 
 @app.post("/crawl")
 async def crawl_url(data: Data):
@@ -263,29 +273,75 @@ async def crawl_url(data: Data):
 
     try:
         results = DDGS().text(
-            f"{data.message} site:{data.url}", max_results=1
+            f"{data.message} site:{data.url}", max_results=1, region="vi-vn"
         )
 
         selected_urls = []
+        documents = []
 
         for result in results:
-            if re.search(re.escape(data.message), result["title"], re.IGNORECASE):
-                selected_urls.append(result)
-                print(f"Selected URL based on title match: {result['href']}")
+
+            document = Document(page_content=result['body'], metadata = {"url": result['href']})
+
+            documents.append(document)
+
+            # response = client.responses.parse(
+            #     model="openai/gpt-oss-20b:free",
+            #     input=[
+            #         {"role": "system", "content": "Decide if the content is about a product or not."},
+            #         {
+            #             "role": "user",
+            #             "content": result['body'],
+            #         },
+            #     ],
+            #     text_format=Answer,
+            # )
+            # answer = response.output_parsed
+
+            # response = client.models.generate_content(
+            #     model="gemini-2.0-flash",
+            #     contents=f"Extract the product information from the following text:\n {text}",
+            #     config={
+            #         "response_mime_type": "application/json",
+            #         "response_json_schema": ExtractedInfos.model_json_schema(),
+            #     },
+            # )
+
+            # infos = ExtractedInfos.model_validate_json(response.text)
+
+            # if answer:         
+            # # if re.search(re.escape(data.message), result["title"], re.IGNORECASE):
+            #     selected_urls.append(result)
+            #     print(f"Selected URL based on title match: {result['href']}")
 
             # print(response.text)
             # if "yes" in response.text.lower():
             #     selected_urls.append(result["href"])
 
+        await create_store(documents)
+
+        doc = store_search(f"sản phẩm {data.message}")
+
+        pprint.pprint(doc)
+        selected_urls.append(doc[0].metadata["url"])
+
         # crawled_pages = []
 
-        results = await asyncio.gather(
-            *[crawl_request_html(url["href"]) for url in selected_urls]
-        )
+        # results = await asyncio.gather(
+        #     *[crawl_request_html(url) for url in selected_urls[:1]]
+        # )
 
-        products = await asyncio.gather(
-            *[extract_product_info(r[0], r[1], data.root, data.message) for r in results if r]
-        )
+        # products = await asyncio.gather(
+        #     *[extract_product_info(r[0], r[1], data.root, data.message) for r in results if r]
+        # )
+
+        result = await crawl_request_html(doc[0].metadata["url"])
+
+        product = await extract_product_info(result[0], result[1], data.root, data.message)
+
+        products =[]
+
+        products.append(product)
 
         # # for r in results:
         # #     # print(f"Selected URL: {url['href']}")
@@ -392,4 +448,6 @@ if __name__ == "__main__":
         # print(product)
     # asyncio.run(test())
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # uvicorn.run(app, host="0.0.0.0", port=8000)
+    pass
+

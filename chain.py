@@ -16,6 +16,7 @@ import os
 from openai import OpenAI
 from dataclasses import dataclass
 from langchain.agents.structured_output import ToolStrategy
+from langchain_core.documents import Document
 
 load_dotenv()
 
@@ -49,17 +50,18 @@ embeddings = OllamaEmbeddings(model="mxbai-embed-large:latest")
 current_retriever = None
 _initialized = False
 
-async def initialize_retriever(href: str = None):
+# async def initialize_retriever(href: str = None):
+async def initialize_retriever(documents: Document = None):
     """Initialize retriever once and reuse"""
     global current_retriever, _initialized
     
-    if _initialized and current_retriever is not None:
-        return current_retriever
+    # if _initialized and current_retriever is not None:
+    #     return current_retriever
     
-    if href is None:
-        raise ValueError("href is required for first initialization")
+    if documents is None:
+        raise ValueError("documents is required for first initialization")
     
-    documents = await get_data(href)
+    # documents = await get_data(href)
     client = QdrantClient(":memory:")
     
     client.create_collection(
@@ -111,7 +113,7 @@ async def initialize_retriever(href: str = None):
 
 #     return retriever
 
-@tool
+# @tool
 def store_search(query: str) -> Dict[str, Any]:
     """Search the vector store.
 
