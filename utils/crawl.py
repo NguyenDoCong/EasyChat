@@ -13,10 +13,11 @@ client = OpenAI()
 
 def crawl(url):
     try:
+        
         r = requests.get(url)
         html_doc = r.text
         soup = BeautifulSoup(html_doc, "html.parser")
-
+        title = soup.title.text if soup.title else ""
         text = soup.get_text(strip=True)
         # The client gets the API key from the environment variable `GEMINI_API_KEY`.
         # response = client.responses.create(
@@ -32,10 +33,16 @@ def crawl(url):
 
         images = []
 
-        for image in soup.find_all('img'):
-            # print(link.get('href'))
-            if 'products' in image['src']:
-                images.append(image['src'])
+        imgs = soup.find_all("img")
+        # filtered_imgs = []
+        # filtered_imgs = [image['src'] for image in imgs if image['src']]
+
+        set_imgs =  list(set(imgs))
+
+        # for image in soup.find_all('img'):
+        #     # print(link.get('href'))
+        #     if 'products' in image['src']:
+        #         images.append(image['src'])
 
         image = images[0] if images else ""
         
@@ -43,12 +50,13 @@ def crawl(url):
         # return response.output_text
     except Exception as e:
         print(f"Error crawling {url}: {e}")
+        url = ""
         text = ""
-        links = []
-        images = []
-        image = ""
+        title = ""
+        set_imgs = []
+        # image = ""
 
-    return url, text, links, image
+    return url, text, title, set_imgs
 
 if __name__ == "__main__":
     url = "https://rangdong.com.vn/category/den-led-chieu-sang"

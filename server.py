@@ -34,6 +34,8 @@ from bs4 import BeautifulSoup
 import concurrent.futures
 from langchain_core.documents import Document
 import pprint
+from concurrent.futures import ThreadPoolExecutor
+from test_extract_info import finalize_name
 
 # Configure logging
 logging.basicConfig(
@@ -119,9 +121,8 @@ async def create_store(documents: Document):
 
 
 class ExtractedInfos(BaseModel):
-    price: str = Field(description="price of the product")
-    specs: str = Field(description="description of the product")
-
+    price: str = Field(description="giá")
+    specs: str = Field(description="đặc điểm")
 
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
@@ -131,10 +132,10 @@ client = OpenAI(
 # client = genai.Client()
 
 
-async def extract_product_info(r, url, root, query):
+async def extract_product_info(url, text, title, set_imgs, root, query):
     try:
-        name_element = r.html.find("title", first=True)
-        name = name_element.text if name_element else "Unknown"
+        # name_element = r.html.find("title", first=True)
+        # name = name_element.text if name_element else "Unknown"
 
         # first_element = r.html.find("base", first=True)
         # link = first_element.attrs.get("href")
@@ -143,32 +144,50 @@ async def extract_product_info(r, url, root, query):
 
         print("Đang lấy thông tin của url:", link)
 
-        clean_text = r.html.text
-        soup = BeautifulSoup(clean_text, "html.parser")
-        text = soup.get_text()
+        # clean_text = r.html.text
+        # soup = BeautifulSoup(clean_text, "html.parser")
+        # text = soup.get_text()
 
         # links = list(r.html.absolute_links)
 
-        images = r.html.find("img")
-        # img_src = [img.attrs.get("src") for img in images if img.attrs.get("src")]
-        # img_alt = [img.attrs.get("alt") for img in images if img.attrs.get("alt")]
-        image = ""
+        # images = r.html.find("img")
+        # # img_src = [img.attrs.get("src") for img in images if img.attrs.get("src")]
+        # # img_alt = [img.attrs.get("alt") for img in images if img.attrs.get("alt")]
+        # image = ""
 
         documents = []
-        for i in images:
-            # print("-------------------------------")
-            # alt = i.attrs.get("alt")
-            # print(alt)
-            # if str(query).lower() in str(alt).lower():
-            #     image = i.attrs.get("src")
-            document = Document(page_content=str(i.attrs.get("alt")), metadata={"src":str(i.attrs.get("src"))})
-            documents.append(document)
+        # for i in images:
+        #     # print("-------------------------------")
+        #     # alt = i.attrs.get("alt")
+        #     # print(alt)
+        #     # if str(query).lower() in str(alt).lower():
+        #     #     image = i.attrs.get("src")
+        #     document = Document(page_content=str(i.attrs.get("alt")), metadata={"src":str(i.attrs.get("src"))})
+        #     documents.append(document)
+
+        # img_urls = [img.get('src') for img in set_imgs if img.get('src')]
+
+        filtered_imgs = []
+        filtered_imgs = [image for image in set_imgs if re.search("rangdongstore.vn",str(image['src']))]
+
+        # for img in set_imgs:
+        #     print(f"link img {img['src']}")
+
+
+        print("Ảnh trước lọc:", len(set_imgs))
+
+        print("Ảnh sau lọc:", len(filtered_imgs))
+
+        set_filtered_imgs =  list(set(filtered_imgs))
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            documents = list(executor.map(finalize_name, set_filtered_imgs))
 
         # print(f"Img src is {image} with root {root}")
 
         await create_store(documents)
 
-        doc = store_search(name)
+        doc = store_search(title)
 
         print("image -------------------------------------------------------")
 
@@ -227,7 +246,7 @@ async def extract_product_info(r, url, root, query):
         try:
 
             product = {
-                "name": name,
+                "name": title,
                 "price": infos.price,
                 "specs": infos.specs,
                 "link": link,
@@ -250,14 +269,6 @@ async def extract_product_info(r, url, root, query):
     except Exception as e:
         logger.error(f"Error processing crawled data: {str(e)}", exc_info=True)
 
-
-def print_result(r):
-    first_element = r.html.find("base", first=True)
-
-    link = first_element.attrs.get("href")
-    print(link)
-
-
 class Data(BaseModel):
     message: str
     url: str
@@ -273,15 +284,15 @@ async def crawl_url(data: Data):
 
     try:
         results = DDGS().text(
-            f"{data.message} site:{data.url}", max_results=1, region="vi-vn"
+            f"{data.message} site:{data.url}", max_results=10
         )
 
-        selected_urls = []
+        # selected_urls = []
         documents = []
 
         for result in results:
 
-            document = Document(page_content=result['body'], metadata = {"url": result['href']})
+            document = Document(page_content=result['title'], metadata = {"url": result['href']})
 
             documents.append(document)
 
@@ -320,10 +331,28 @@ async def crawl_url(data: Data):
 
         await create_store(documents)
 
-        doc = store_search(f"sản phẩm {data.message}")
+        doc = store_search(f"{data.message}")
 
-        pprint.pprint(doc)
-        selected_urls.append(doc[0].metadata["url"])
+        # pprint.pprint(doc)
+
+        doc_content = "\n".join([d.page_content for d in doc])
+
+        response = client.responses.parse(
+                model="openai/gpt-oss-20b:free",
+                input=[
+                    {"role": "system", "content": f"Choose the document that suits the {data.message} the most."},
+                    {
+                        "role": "user",
+                        "content": doc_content,
+                    },
+                ],
+                # text_format=Answer,
+            )
+        best_doc = response.output_parsed
+
+        pprint.pprint(best_doc)
+
+        # selected_urls.append(best_doc.metadata["url"])
 
         # crawled_pages = []
 
@@ -335,9 +364,10 @@ async def crawl_url(data: Data):
         #     *[extract_product_info(r[0], r[1], data.root, data.message) for r in results if r]
         # )
 
-        result = await crawl_request_html(doc[0].metadata["url"])
+        # result = await crawl_request_html(doc[0].metadata["url"])
+        url, text, title, set_imgs = crawl(doc[0].metadata["url"])
 
-        product = await extract_product_info(result[0], result[1], data.root, data.message)
+        product = await extract_product_info(url, text, title, set_imgs, data.root, data.message)
 
         products =[]
 
@@ -448,6 +478,6 @@ if __name__ == "__main__":
         # print(product)
     # asyncio.run(test())
 
-    # uvicorn.run(app, host="0.0.0.0", port=8000)
-    pass
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # pass
 
