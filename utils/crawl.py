@@ -18,7 +18,9 @@ def crawl(url):
         html_doc = r.text
         soup = BeautifulSoup(html_doc, "html.parser")
         title = soup.title.text if soup.title else ""
-        text = soup.get_text(strip=True)
+        # text = soup.get_text(strip=True)
+        text = soup.get_text()
+
         # The client gets the API key from the environment variable `GEMINI_API_KEY`.
         # response = client.responses.create(
         #     model="gpt-4o-mini",
@@ -51,16 +53,21 @@ def crawl(url):
     except Exception as e:
         print(f"Error crawling {url}: {e}")
         url = ""
-        text = ""
-        title = ""
-        set_imgs = []
+        # text = ""
+        # title = ""
+        # set_imgs = []
         # image = ""
 
-    return url, text, title, set_imgs
+    
+
+    return url
 
 if __name__ == "__main__":
-    url = "https://rangdong.com.vn/category/den-led-chieu-sang"
+    url = "https://rangdongstore.vn/den-duong-led-100w-csd06-p-221223003048"
     url, text, links, images = crawl(url)
-    print(images[0])
+    with open("demofile.txt", "a") as f:
+        f.write(text)
+    # print(text)
+    # print(images[0])
     # for img in images:
     #     print(img)

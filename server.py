@@ -36,6 +36,8 @@ from langchain_core.documents import Document
 import pprint
 from concurrent.futures import ThreadPoolExecutor
 from test_extract_info import finalize_name
+from utils.claude_crawl import UniversalProductScraper
+
 
 # Configure logging
 logging.basicConfig(
@@ -284,7 +286,7 @@ async def crawl_url(data: Data):
 
     try:
         results = DDGS().text(
-            f"{data.message} site:{data.url}", max_results=10
+            f"{data.message} site:{data.url}", max_results=20
         )
 
         # selected_urls = []
@@ -296,163 +298,78 @@ async def crawl_url(data: Data):
 
             documents.append(document)
 
-            # response = client.responses.parse(
-            #     model="openai/gpt-oss-20b:free",
-            #     input=[
-            #         {"role": "system", "content": "Decide if the content is about a product or not."},
-            #         {
-            #             "role": "user",
-            #             "content": result['body'],
-            #         },
-            #     ],
-            #     text_format=Answer,
-            # )
-            # answer = response.output_parsed
-
-            # response = client.models.generate_content(
-            #     model="gemini-2.0-flash",
-            #     contents=f"Extract the product information from the following text:\n {text}",
-            #     config={
-            #         "response_mime_type": "application/json",
-            #         "response_json_schema": ExtractedInfos.model_json_schema(),
-            #     },
-            # )
-
-            # infos = ExtractedInfos.model_validate_json(response.text)
-
-            # if answer:         
-            # # if re.search(re.escape(data.message), result["title"], re.IGNORECASE):
-            #     selected_urls.append(result)
-            #     print(f"Selected URL based on title match: {result['href']}")
-
-            # print(response.text)
-            # if "yes" in response.text.lower():
-            #     selected_urls.append(result["href"])
-
         await create_store(documents)
 
-        doc = store_search(f"{data.message}")
+        docs = store_search(f"{data.message}")
 
         # pprint.pprint(doc)
 
-        doc_content = "\n".join([d.page_content for d in doc])
+        # doc_content = "\n".join([d.page_content for d in doc])
 
-        response = client.responses.parse(
-                model="openai/gpt-oss-20b:free",
-                input=[
-                    {"role": "system", "content": f"Choose the document that suits the {data.message} the most."},
-                    {
-                        "role": "user",
-                        "content": doc_content,
-                    },
-                ],
-                # text_format=Answer,
-            )
-        best_doc = response.output_parsed
+        # response = client.responses.parse(
+        #         model="openai/gpt-oss-20b:free",
+        #         input=[
+        #             {"role": "system", "content": f"Choose the document that suits the {data.message} the most."},
+        #             {
+        #                 "role": "user",
+        #                 "content": doc_content,
+        #             },
+        #         ],
+        #         # text_format=Answer,
+        #     )
+        # best_doc = response.output_parsed
 
-        pprint.pprint(best_doc)
+        # pprint.pprint(best_doc)
 
         # selected_urls.append(best_doc.metadata["url"])
 
         # crawled_pages = []
 
         # results = await asyncio.gather(
-        #     *[crawl_request_html(url) for url in selected_urls[:1]]
+        #     *[crawl(doc.metadata["url"]) for doc in docs[:4]]
         # )
+
+        # with ThreadPoolExecutor(max_workers=4) as executor:
+        #     results = list(executor.map(crawl, docs[:4]))
+
+        scraper = UniversalProductScraper(
+            use_llm=False,  # Set True nếu muốn dùng LLM
+            llm_api_key="your-api-key-here"  # Thêm API key nếu dùng LLM
+        )
 
         # products = await asyncio.gather(
-        #     *[extract_product_info(r[0], r[1], data.root, data.message) for r in results if r]
+        #     *[scraper.scrape(r) for r in results if r]
         # )
 
-        # result = await crawl_request_html(doc[0].metadata["url"])
-        url, text, title, set_imgs = crawl(doc[0].metadata["url"])
+        urls = []
 
-        product = await extract_product_info(url, text, title, set_imgs, data.root, data.message)
+        for doc in docs[:5]:
+            urls.append(doc.metadata["url"])
 
-        products =[]
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            products = list(executor.map(scraper.scrape, urls))
 
-        products.append(product)
+        final_products = (product for product in products if product)
 
-        # # for r in results:
-        # #     # print(f"Selected URL: {url['href']}")
-        # #     # link, clean_text, links, image = await crawl_request_html(url["href"])
-        # #     try:
-        # #         name_element = r.html.find('title', first=True)
-        # #         name = name_element.text if name_element else "Unknown"
+        # products = []
 
-        # #         first_element = r.html.find('base', first=True)
+        # for doc in docs[:5]:
+        #     products.append(scraper.scrape(doc.metadata["url"],method="auto"))
 
-        # #         link = first_element.attrs.get('href')
+        # # result = await crawl_request_html(doc[0].metadata["url"])
+        # url, text, title, set_imgs = crawl(doc[0].metadata["url"])
+        
+        # product = scraper.scrape(url, method='auto')
 
-        # #         clean_text = r.html.text
-        # #         soup = BeautifulSoup(clean_text, 'html.parser')
-        # #         text = soup.get_text()
+        # # product = await extract_product_info(url, text, title, set_imgs, data.root, data.message)
 
-        # #         # links = list(r.html.absolute_links)
+        # products =[]
 
-        # #         images = r.html.find('img')
-        # #         img_src = [img.attrs.get('src') for img in images if img.attrs.get('src')]
-        # #         image = img_src[0] if img_src else ""
+        # products.append(product)
 
-        # #         if re.search("giá", text, re.IGNORECASE):
+        
 
-        # #             # name = url["title"]
-        # #             # crawled_pages.append((page_data))
-        # #             # s = ''.join(clean_text)
-        # #             s = clean_text[:10000]  # Giới hạn độ dài văn bản đầu vào
-
-        # #             # response = client.responses.parse(
-        # #             #     model="openai/gpt-oss-20b:free",
-        # #             #     input=[
-        # #             #         {"role": "system", "content": "Extract the product information."},
-        # #             #         {
-        # #             #             "role": "user",
-        # #             #             "content": s,
-        # #             #         },
-        # #             #     ],
-        # #             #     text_format=ExtractedInfos,
-        # #             # )
-
-        # #             response = client.models.generate_content(
-        # #                 model="gemini-2.0-flash",
-        # #                 contents=f"Extract the product information from the following text:\n {s}",
-        # #                 config={
-        # #                     "response_mime_type": "application/json",
-        # #                     "response_json_schema": ExtractedInfos.model_json_schema(),
-        # #                 },
-        # #             )
-
-        # #             # infos = response.output_parsed
-        # #             infos = ExtractedInfos.model_validate_json(response.text)
-
-        # #             # for i, m in enumerate(result["messages"]):
-        # #             #     logger.debug(f"Message {i}: {type(m).__name__}")
-        # #             #     m.pretty_print()
-
-        # #             # # Extract the last message content
-        # #             # last_message = result["messages"][-1]
-        # #             # logger.info(f"Last message type: {type(last_message).__name__}")
-
-        # #             # response_content = getattr(last_message, "content", str(last_message))
-        # #             # # json_content = json.loads(response_content)
-        # #             # # print("Response Content:", json_content)
-        # #             # pattern = r"(\w+)\s*=\s*'([^']*)'"
-        # #             # result = dict(re.findall(pattern, response_content))
-
-        # #             # if not re.search("N/A", infos.price, re.IGNORECASE):
-
-        # #             products.append({
-        # #                         "name": name,
-        # #                         "price": infos.price,
-        # #                         "specs": infos.specs,
-        # #                         "link": link,
-        # #                         "image": image
-        # #                     })
-        # #     except Exception as e:
-        # #         logger.error(f"Error processing crawled data: {str(e)}", exc_info=True)
-        # #         continue
-
-        return {"status": "success", "type": "products", "data": products}
+        return {"status": "success", "type": "products", "data": final_products}
 
     except Exception as e:
         logger.error(f"Error in /crawl endpoint: {str(e)}", exc_info=True)
