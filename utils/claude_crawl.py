@@ -177,7 +177,8 @@ class UniversalProductScraper:
         # Fetch HTML
         html_content = self._fetch_url(url)
         if not html_content:
-            return {"error": "Failed to fetch URL"}
+            # return {"error": "Failed to fetch URL"}
+            return None
 
         # Parse HTML
         soup = BeautifulSoup(html_content, "html.parser")
@@ -201,22 +202,24 @@ class UniversalProductScraper:
         # Post-processing
         result = self._clean_result(result)
 
-        final_result = {}
-        try:
+        final_result = False
 
-            specs = self._clean_redundant_text(result["description"])
+        if result:
+            try:
 
-            final_result = {
-                "name": result["name"],
-                "price": str(result["price"]) + " " + result["currency"],
-                "specs": specs,
-                "link": url,
-                "image": result["images"][0],
-            }
-            # return final_result
-        except Exception as e:
-            print("lỗi xuất thông tin", e)
-            final_result = {}
+                specs = self._clean_redundant_text(result["description"])
+
+                final_result = {
+                    "name": result["name"],
+                    "price": str(result["price"]) + " " + result["currency"],
+                    "specs": specs,
+                    "link": url,
+                    "image": result["images"][0],
+                }
+                # return final_result
+            except Exception as e:
+                print("lỗi xuất thông tin", e)
+                final_result = False
 
         # result['url'] = url
         # result['scrape_method'] = method
@@ -239,7 +242,7 @@ class UniversalProductScraper:
                     print(f"⚠️  Bị chặn, thử lại lần {i + 1}...")
                     time.sleep(2)
                 else:
-                    print(f"❌ Status code: {response.status_code}")
+                    print(f"❌ Status code: {response.status_code}, url: {url}")
                     return None
             except Exception as e:
                 print(f"❌ Error: {e}")

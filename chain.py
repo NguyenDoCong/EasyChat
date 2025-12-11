@@ -78,7 +78,7 @@ async def initialize_retriever(documents: Document = None):
     # uuids = [str(uuid4()) for _ in range(len(documents))]
     vector_store.add_documents(documents=documents)
     
-    current_retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 3})
+    current_retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 4})
     _initialized = True
     
     return current_retriever

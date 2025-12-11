@@ -292,15 +292,19 @@ async def crawl_url(data: Data):
         # selected_urls = []
         documents = []
 
+        urls = []     
+
         for result in results:
 
-            document = Document(page_content=result['title'], metadata = {"url": result['href']})
+            # document = Document(page_content=result['title'], metadata = {"url": result['href']})
 
-            documents.append(document)
+            # documents.append(document)
 
-        await create_store(documents)
+            urls.append(result['href'])
 
-        docs = store_search(f"{data.message}")
+        # await create_store(documents)
+
+        # docs = store_search(f"{data.message}")
 
         # pprint.pprint(doc)
 
@@ -341,15 +345,16 @@ async def crawl_url(data: Data):
         #     *[scraper.scrape(r) for r in results if r]
         # )
 
-        urls = []
 
-        for doc in docs[:5]:
-            urls.append(doc.metadata["url"])
+        # for doc in docs[:5]:
+        #     urls.append(doc.metadata["url"])
 
         with ThreadPoolExecutor(max_workers=4) as executor:
             products = list(executor.map(scraper.scrape, urls))
 
-        final_products = (product for product in products if product)
+        final_products = list((product for product in products if product))
+
+        print(len(final_products))
 
         # products = []
 
