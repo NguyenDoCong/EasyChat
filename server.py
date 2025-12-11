@@ -97,12 +97,16 @@ class Info(BaseModel):
 def receive_hover(info: Info):
     logger.info(f"User hovered: {info.href}")
     try:
+        scraper = UniversalProductScraper(
+            use_llm=False,  # Set True nếu muốn dùng LLM
+            llm_api_key="your-api-key-here"  # Thêm API key nếu dùng LLM
+        )
         logger.info("Crawling data...")
-        crawled_data = crawl(info.href)
+        crawled_data = scraper.scrape(info.href)
         logger.info(f"Crawl successful, data length: {len(crawled_data)}")
-        clean = re.sub(r"<think>.*?</think>", "", crawled_data, flags=re.DOTALL).strip()
-        logger.info(f"Cleaned data length: {len(clean)}")
-        return {"result": clean}
+        # clean = re.sub(r"<think>.*?</think>", "", crawled_data, flags=re.DOTALL).strip()
+        # logger.info(f"Cleaned data length: {len(clean)}")
+        return {"result": crawled_data['specs']}
     except Exception as e:
         logger.error(f"Error in /hover endpoint: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -132,144 +136,6 @@ client = OpenAI(
 )
 
 # client = genai.Client()
-
-
-async def extract_product_info(url, text, title, set_imgs, root, query):
-    try:
-        # name_element = r.html.find("title", first=True)
-        # name = name_element.text if name_element else "Unknown"
-
-        # first_element = r.html.find("base", first=True)
-        # link = first_element.attrs.get("href")
-
-        link = url
-
-        print("Đang lấy thông tin của url:", link)
-
-        # clean_text = r.html.text
-        # soup = BeautifulSoup(clean_text, "html.parser")
-        # text = soup.get_text()
-
-        # links = list(r.html.absolute_links)
-
-        # images = r.html.find("img")
-        # # img_src = [img.attrs.get("src") for img in images if img.attrs.get("src")]
-        # # img_alt = [img.attrs.get("alt") for img in images if img.attrs.get("alt")]
-        # image = ""
-
-        documents = []
-        # for i in images:
-        #     # print("-------------------------------")
-        #     # alt = i.attrs.get("alt")
-        #     # print(alt)
-        #     # if str(query).lower() in str(alt).lower():
-        #     #     image = i.attrs.get("src")
-        #     document = Document(page_content=str(i.attrs.get("alt")), metadata={"src":str(i.attrs.get("src"))})
-        #     documents.append(document)
-
-        # img_urls = [img.get('src') for img in set_imgs if img.get('src')]
-
-        filtered_imgs = []
-        filtered_imgs = [image for image in set_imgs if re.search("rangdongstore.vn",str(image['src']))]
-
-        # for img in set_imgs:
-        #     print(f"link img {img['src']}")
-
-
-        print("Ảnh trước lọc:", len(set_imgs))
-
-        print("Ảnh sau lọc:", len(filtered_imgs))
-
-        set_filtered_imgs =  list(set(filtered_imgs))
-
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            documents = list(executor.map(finalize_name, set_filtered_imgs))
-
-        # print(f"Img src is {image} with root {root}")
-
-        await create_store(documents)
-
-        doc = store_search(title)
-
-        print("image -------------------------------------------------------")
-
-        pprint.pprint(doc)
-
-        image = doc[0].metadata["src"]
-
-        # product = {}
-
-        # if re.search("giá", text, re.IGNORECASE):
-            # name = url["title"]
-            # crawled_pages.append((page_data))
-            # s = ''.join(clean_text)
-            # s = text[:10000]  # Giới hạn độ dài văn bản đầu vào
-
-        response = client.responses.parse(
-            model="openai/gpt-oss-20b:free",
-            input=[
-                {"role": "system", "content": "Extract the product information."},
-                {
-                    "role": "user",
-                    "content": text,
-                },
-            ],
-            text_format=ExtractedInfos,
-        )
-        infos = response.output_parsed
-
-        # response = client.models.generate_content(
-        #     model="gemini-2.0-flash",
-        #     contents=f"Extract the product information from the following text:\n {text}",
-        #     config={
-        #         "response_mime_type": "application/json",
-        #         "response_json_schema": ExtractedInfos.model_json_schema(),
-        #     },
-        # )
-
-        # infos = ExtractedInfos.model_validate_json(response.text)
-
-        # for i, m in enumerate(result["messages"]):
-        #     logger.debug(f"Message {i}: {type(m).__name__}")
-        #     m.pretty_print()
-
-        # # Extract the last message content
-        # last_message = result["messages"][-1]
-        # logger.info(f"Last message type: {type(last_message).__name__}")
-
-        # response_content = getattr(last_message, "content", str(last_message))
-        # # json_content = json.loads(response_content)
-        # # print("Response Content:", json_content)
-        # pattern = r"(\w+)\s*=\s*'([^']*)'"
-        # result = dict(re.findall(pattern, response_content))
-
-        # if not re.search("N/A", infos.price, re.IGNORECASE):
-
-        try:
-
-            product = {
-                "name": title,
-                "price": infos.price,
-                "specs": infos.specs,
-                "link": link,
-                "image": image,
-            }
-
-        except Exception as e:
-            print("Lỗi lấy thông tin sản phẩm", e)
-
-        # products.append({
-        #             "name": name,
-        #             "price": infos.price,
-        #             "specs": infos.specs,
-        #             "link": link,
-        #             "image": image
-        #         })
-
-        return product  # ADD THIS LINE
-
-    except Exception as e:
-        logger.error(f"Error processing crawled data: {str(e)}", exc_info=True)
 
 class Data(BaseModel):
     message: str

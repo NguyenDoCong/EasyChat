@@ -4,13 +4,17 @@ from dotenv import load_dotenv
 import os
 from openai import OpenAI
 import openai
+from utils.claude_crawl import UniversalProductScraper
 
 load_dotenv()
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
-client = OpenAI()
-
+# client = OpenAI()
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+)
 # def crawl(url):
 #     try:
         
@@ -70,7 +74,7 @@ def crawl(url):
     text = soup.get_text(strip=True)
     # The client gets the API key from the environment variable `GEMINI_API_KEY`.
     response = client.responses.create(
-        model="gpt-4o-mini",
+        model="openai/gpt-oss-20b:free",
         input=f"Summarize the following content in Vietnamese in 10 words:\n\n{text}",
     )
 
