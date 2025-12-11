@@ -1,7 +1,7 @@
 // ============================================
 // content-script.js - Inject chat vào trang web
 // ============================================
-(function() {
+(function () {
     'use strict';
 
     // Cấu hình
@@ -487,8 +487,8 @@
 
             // Escape HTML
             html = html.replace(/&/g, '&amp;')
-                      .replace(/</g, '&lt;')
-                      .replace(/>/g, '&gt;');
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
 
             // Code blocks (must process first)
             html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
@@ -500,11 +500,11 @@
 
             // Bold
             html = html.replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>')
-                      .replace(/__([^_]+)__/g, '<strong>$1</strong>');
+                .replace(/__([^_]+)__/g, '<strong>$1</strong>');
 
             // Italic
             html = html.replace(/\*([^\*]+)\*/g, '<em>$1</em>')
-                      .replace(/_([^_]+)_/g, '<em>$1</em>');
+                .replace(/_([^_]+)_/g, '<em>$1</em>');
 
             // Headers
             html = html.replace(/^#### (.*?)$/gm, '<h4>$1</h4>');
@@ -532,9 +532,9 @@
                 para = para.trim();
                 if (!para) return '';
                 if (para.startsWith('<') && (
-                    para.includes('<h') || 
-                    para.includes('<ul') || 
-                    para.includes('<pre') || 
+                    para.includes('<h') ||
+                    para.includes('<ul') ||
+                    para.includes('<pre') ||
                     para.includes('<blockquote') ||
                     para.includes('<hr')
                 )) {
@@ -797,11 +797,11 @@
             try {
                 const response = await fetch(CONFIG.apiUrl, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message: message,
                         url: window.location.href,
-                        root: window.location.origin,                        
+                        root: window.location.origin,
                         timestamp: new Date().toISOString()
                     })
                 });
@@ -845,5 +845,148 @@
         const elements = createChatWidget();
         new ChatWidget(elements);
     }
+
+    // Kiểm tra nếu đã inject rồi thì không inject lại
+    if (document.getElementById('overlay-styles')) {
+        console.log('Styles already injected, reinitializing overlays...');
+        initOverlays();
+        return;
+    }
+
+    // Tạo và thêm CSS vào document
+    function injectStyles() {
+        const style = document.createElement('style');
+        style.id = 'overlay-styles';
+        style.textContent = `
+            .block.relative.mb-5 {
+                position: relative;
+                display: block;
+            }
+
+            .overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(135deg, rgba(30, 30, 60, 0.95), rgba(50, 50, 80, 0.95));
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                color: white;
+                padding: 20px;
+                z-index: 10;
+            }
+
+            .overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .overlay-title {
+                font-size: 14px;
+                font-weight: 500;
+                text-align: center;
+                line-height: 1.5;
+            }
+
+            .overlay-loading {
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.7);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Tạo overlay cho mỗi ảnh
+    function createOverlay(text = '') {
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        overlay.innerHTML = `
+            <div class="overlay-title">${text || '<div class="overlay-loading">Đang tải...</div>'}</div>
+        `;
+        return overlay;
+    }
+
+    // Fetch data từ API
+    async function fetchOverlayData(url, overlay) {
+        try {
+            url = "https://rangdongstore.vn/" + url
+            console.log('Fetching data for:', url);
+
+            const response = await fetch("http://127.0.0.1:8000/hover", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ href: url })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                overlay.querySelector('.overlay-title').innerHTML = result.result || 'Không có thông tin';
+                console.log('✅ Loaded content for:', url);
+            } else {
+                console.error('API returned status:', response.status);
+                overlay.querySelector('.overlay-title').innerHTML = 'Lỗi tải dữ liệu';
+            }
+        } catch (err) {
+            console.error("Error fetching data for", url, err);
+            overlay.querySelector('.overlay-title').innerHTML = 'Lỗi kết nối';
+        }
+    }
+
+    // Khởi tạo overlay cho tất cả ảnh
+    function initOverlays() {
+        // Xóa overlay cũ nếu có
+        document.querySelectorAll('.overlay').forEach(el => el.remove());
+
+        const containers = document.querySelectorAll('.block, .relative, .mb-5');
+
+        console.log(`Found ${containers.length} products`);
+
+        containers.forEach(container => {
+            // Lấy href từ thẻ <a>
+            const productUrl = container.getAttribute('href');
+
+            if (!productUrl) {
+                console.warn('No href found for container:', container);
+                return;
+            }
+
+            // Tạo overlay
+            const overlay = createOverlay();
+            container.appendChild(overlay);
+
+            // Biến để track trạng thái đã load
+            let isLoaded = false;
+
+            // Xử lý hover - CHỈ GỌI API KHI HOVER
+            container.addEventListener('mouseenter', () => {
+                overlay.classList.add('show');
+
+                // Chỉ gọi API lần đầu tiên hover
+                if (!isLoaded) {
+                    isLoaded = true;
+                    fetchOverlayData(productUrl, overlay);
+                }
+            });
+
+            container.addEventListener('mouseleave', () => {
+                overlay.classList.remove('show');
+            });
+        });
+
+        console.log('✅ Image overlay initialized successfully!');
+    }
+
+    // Chạy ngay lập tức
+    injectStyles();
+    initOverlays();
 
 })();

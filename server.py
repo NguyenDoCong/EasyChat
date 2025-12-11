@@ -37,7 +37,7 @@ import pprint
 from concurrent.futures import ThreadPoolExecutor
 from test_extract_info import finalize_name
 from utils.claude_crawl import UniversalProductScraper
-
+import time
 
 # Configure logging
 logging.basicConfig(
@@ -281,6 +281,7 @@ class Answer(BaseModel):
 
 @app.post("/crawl")
 async def crawl_url(data: Data):
+    start_time = time.perf_counter()
     logger.info(f"Received crawl request {data.message} for URL: {data.url} from {data.root}")
     print(f"Received crawl request {data.message} for URL: {data.url} from {data.root}")
 
@@ -372,9 +373,12 @@ async def crawl_url(data: Data):
 
         # products.append(product)
 
-        
+        end_time = time.perf_counter()
+        execution_time = end_time - start_time
+        print(f"Thời gian thực hiện: {execution_time} giây")
 
         return {"status": "success", "type": "products", "data": final_products}
+        
 
     except Exception as e:
         logger.error(f"Error in /crawl endpoint: {str(e)}", exc_info=True)

@@ -11,56 +11,71 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 
 client = OpenAI()
 
-def crawl(url):
-    try:
+# def crawl(url):
+#     try:
         
-        r = requests.get(url)
-        html_doc = r.text
-        soup = BeautifulSoup(html_doc, "html.parser")
-        title = soup.title.text if soup.title else ""
-        # text = soup.get_text(strip=True)
-        text = soup.get_text()
+#         r = requests.get(url)
+#         html_doc = r.text
+#         soup = BeautifulSoup(html_doc, "html.parser")
+#         title = soup.title.text if soup.title else ""
+#         # text = soup.get_text(strip=True)
+#         text = soup.get_text()
 
-        # The client gets the API key from the environment variable `GEMINI_API_KEY`.
-        # response = client.responses.create(
-        #     model="gpt-4o-mini",
-        #     input=f"Summarize the following content in Vietnamese in 10 words:\n\n{text}",
-        # )
+#         # The client gets the API key from the environment variable `GEMINI_API_KEY`.
+#         # response = client.responses.create(
+#         #     model="gpt-4o-mini",
+#         #     input=f"Summarize the following content in Vietnamese in 10 words:\n\n{text}",
+#         # )
 
-        links = []
+#         links = []
 
-        for link in soup.find_all('a'):
-            # print(link.get('href'))
-            links.append(link.get('href'))
+#         for link in soup.find_all('a'):
+#             # print(link.get('href'))
+#             links.append(link.get('href'))
 
-        images = []
+#         images = []
 
-        imgs = soup.find_all("img")
-        # filtered_imgs = []
-        # filtered_imgs = [image['src'] for image in imgs if image['src']]
+#         imgs = soup.find_all("img")
+#         # filtered_imgs = []
+#         # filtered_imgs = [image['src'] for image in imgs if image['src']]
 
-        set_imgs =  list(set(imgs))
+#         set_imgs =  list(set(imgs))
 
-        # for image in soup.find_all('img'):
-        #     # print(link.get('href'))
-        #     if 'products' in image['src']:
-        #         images.append(image['src'])
+#         # for image in soup.find_all('img'):
+#         #     # print(link.get('href'))
+#         #     if 'products' in image['src']:
+#         #         images.append(image['src'])
 
-        image = images[0] if images else ""
+#         image = images[0] if images else ""
         
-        # print(response.output_text)
-        # return response.output_text
-    except Exception as e:
-        print(f"Error crawling {url}: {e}")
-        url = ""
-        # text = ""
-        # title = ""
-        # set_imgs = []
-        # image = ""
+#         # print(response.output_text)
+#         # return response.output_text
+#     except Exception as e:
+#         print(f"Error crawling {url}: {e}")
+#         url = ""
+#         # text = ""
+#         # title = ""
+#         # set_imgs = []
+#         # image = ""
 
     
 
-    return url
+#     return url
+
+def crawl(url):
+    r = requests.get(url)
+    html_doc = r.text
+    soup = BeautifulSoup(html_doc, "html.parser")
+
+    text = soup.get_text(strip=True)
+    # The client gets the API key from the environment variable `GEMINI_API_KEY`.
+    response = client.responses.create(
+        model="gpt-4o-mini",
+        input=f"Summarize the following content in Vietnamese in 10 words:\n\n{text}",
+    )
+
+    print(response.output_text)
+    return response.output_text
 
 if __name__ == "__main__":
     url = "https://rangdongstore.vn/den-duong-led-100w-csd06-p-221223003048"
