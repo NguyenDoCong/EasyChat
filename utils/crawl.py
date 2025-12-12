@@ -82,7 +82,7 @@ def crawl(url):
     return response.output_text
 
 if __name__ == "__main__":
-    url = "https://rangdongstore.vn/den-duong-led-100w-csd06-p-221223003048"
+    url = "https://rangdong.com.vn/den-led-am-tran-downlight-du-phong-110-9w-da-pr959.html"
     url, text, links, images = crawl(url)
     with open("demofile.txt", "a") as f:
         f.write(text)

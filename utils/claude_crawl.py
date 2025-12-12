@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Any
 from urllib.parse import urlparse
 import time
 import random
-
+import html
 
 def get_useragent():
     """
@@ -59,9 +59,9 @@ class UniversalProductScraper:
         # Các pattern chung cho mọi website
         self.universal_patterns = {
             "price": [
-                r"(?:VND|₫|đ)\s*([\d.,]+)",
-                r"([\d.,]+)\s*(?:VND|₫|đ)",
-                r"(?:Price|Giá)[:\s]*([\d.,]+)",
+                r"(?:Giá [^:]*)[:\s]*([\d.,]+)",                
+                # r"(?:VND)\s*([\d.,]+)",
+                # r"([\d.,]+)\s*(?:VND)",
             ],
             "name": [
                 r"<h1[^>]*>(.*?)</h1>",
@@ -204,6 +204,9 @@ class UniversalProductScraper:
 
         final_result = False
 
+        # if not result["currency"]:
+        # result["currency"] = ""
+
         if result:
             try:
 
@@ -211,7 +214,7 @@ class UniversalProductScraper:
 
                 final_result = {
                     "name": result["name"],
-                    "price": str(result["price"]) + " " + result["currency"],
+                    "price": str(result["price"]),
                     "specs": specs,
                     "link": url,
                     "image": result["images"][0],
@@ -278,6 +281,8 @@ class UniversalProductScraper:
         result = {}
 
         json_ld_scripts = soup.find_all("script", type="application/ld+json")
+        with open("demofile.txt", "w") as f:
+            f.write(str(json_ld_scripts))
 
         for script in json_ld_scripts:
             try:
@@ -291,8 +296,8 @@ class UniversalProductScraper:
                 if data.get("@type") == "Product":
                     result["name"] = data.get("name")
                     result["description"] = data.get("description")
-                    result["sku"] = data.get("sku")
-                    result["brand"] = data.get("brand", {}).get("name")
+                    # result["sku"] = data.get("sku")
+                    # result["brand"] = data.get("brand", {}).get("name")
 
                     # Price
                     if "offers" in data:
@@ -301,7 +306,7 @@ class UniversalProductScraper:
                             offers = offers[0]
                         result["price"] = offers.get("price")
                         result["currency"] = offers.get("priceCurrency")
-                        result["availability"] = offers.get("availability")
+                        # result["availability"] = offers.get("availability")
 
                     # Images
                     if "image" in data:
@@ -355,11 +360,16 @@ class UniversalProductScraper:
 
         # Extract bằng regex patterns
         html_text = soup.get_text()
+        with open("demofile.txt", "a") as f:
+            f.write(html_text)
         for field, patterns in self.universal_patterns.items():
-            if field not in result or not result[field]:
+            # print("-------------------------")
+            # if field not in result or not result[field]:
+                # print("-----------------------")
                 for pattern in patterns:
                     match = re.search(pattern, html_text, re.IGNORECASE)
                     if match:
+                        print(match.group(1).strip())
                         result[field] = match.group(1).strip()
                         break
 
@@ -545,8 +555,19 @@ Chỉ trả về JSON, không giải thích.
                 value = " ".join(value.split())
                 value = value.strip()
 
+                # decode HTML entities và strip tags
+                decoded = html.unescape(value)
+                soup = BeautifulSoup(decoded, "html.parser")
+                text = soup.get_text(separator=" ").strip()
+
+                # loại bỏ ký tự không phải chữ/số/khoảng trắng/.,:;()-/%°
+                cleaned_value = re.sub(r"[^0-9A-Za-zÀ-ỹà-ỹ\s\.,:;\(\)\-\–\/%°]+", "", text)
+
+                # gộp nhiều khoảng trắng thành một
+                cleaned_value = re.sub(r"\s+", " ", cleaned_value).strip()
+
                 # Remove HTML tags
-                value = re.sub(r"<[^>]+>", "", value)
+                value = re.sub(r"<[^>]+>", "", cleaned_value)
 
             # Clean price
             if key == "price" and isinstance(value, str):
@@ -595,7 +616,7 @@ if __name__ == "__main__":
     )
 
     # Example 1: Scrape một sản phẩm
-    url = "https://rangdongstore.vn/den-pha-led-100w-cp07-p-221223003008"
+    url = "https://rangdongstore.vn/den-led-op-tran-doi-mau-ln30n-22018w-p-240820004160"
     result = scraper.scrape(url, method="auto")
     print("\n📊 KẾT QUẢ:")
     print(json.dumps(result, indent=2, ensure_ascii=False))

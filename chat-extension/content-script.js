@@ -869,7 +869,7 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: linear-gradient(135deg, rgba(30, 30, 60, 0.95), rgba(50, 50, 80, 0.95));
+                color: black;
                 border-radius: 8px;
                 display: flex;
                 flex-direction: column;
@@ -878,7 +878,6 @@
                 opacity: 0;
                 visibility: hidden;
                 transition: all 0.3s ease;
-                color: white;
                 padding: 20px;
                 z-index: 10;
             }
@@ -889,15 +888,16 @@
             }
 
             .overlay-title {
-                font-size: 14px;
+                font-size: 16px;
                 font-weight: 500;
                 text-align: center;
                 line-height: 1.5;
+                rgba(0, 0, 0, 0.1);
             }
 
             .overlay-loading {
-                font-size: 12px;
-                color: rgba(255, 255, 255, 0.7);
+                font-size: 16px;
+                -webkit-text-stroke: 1 white;
             }
         `;
         document.head.appendChild(style);
@@ -916,7 +916,7 @@
     // Fetch data từ API
     async function fetchOverlayData(url, overlay) {
         try {
-            url = "https://rangdongstore.vn/" + url
+            url = url.includes("https") ? url : "https://rangdongstore.vn/" + url
             console.log('Fetching data for:', url);
 
             const response = await fetch("http://127.0.0.1:8000/hover", {
@@ -929,11 +929,16 @@
 
             if (response.ok) {
                 const result = await response.json();
-                overlay.querySelector('.overlay-title').innerHTML = result.result || 'Không có thông tin';
+                overlay.style.color= "white";
+
+                overlay.style.background =
+                    "linear-gradient(135deg, rgba(30,30,60,0.95), rgba(50,50,80,0.95))";
+
+                overlay.querySelector('.overlay-title').innerHTML = result.result.substring(0,100) || 'Không có thông tin';
                 console.log('✅ Loaded content for:', url);
             } else {
-                console.error('API returned status:', response.status);
-                overlay.querySelector('.overlay-title').innerHTML = 'Lỗi tải dữ liệu';
+                console.log('API returned status:', response.status);
+                // overlay.querySelector('.overlay-title').innerHTML = 'Lỗi tải dữ liệu';
             }
         } catch (err) {
             console.error("Error fetching data for", url, err);
@@ -946,7 +951,7 @@
         // Xóa overlay cũ nếu có
         document.querySelectorAll('.overlay').forEach(el => el.remove());
 
-        const containers = document.querySelectorAll('.block, .relative, .mb-5');
+        const containers = document.querySelectorAll('a:has(img)[href]:not([href="#"]):not([href=""])')
 
         console.log(`Found ${containers.length} products`);
 
@@ -955,7 +960,7 @@
             const productUrl = container.getAttribute('href');
 
             if (!productUrl) {
-                console.warn('No href found for container:', container);
+                console.log('No href found for container:', container);
                 return;
             }
 
