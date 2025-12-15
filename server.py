@@ -102,11 +102,14 @@ def receive_hover(info: Info):
             llm_api_key="your-api-key-here"  # Thêm API key nếu dùng LLM
         )
         logger.info("Crawling data...")
-        crawled_data = scraper.scrape(info.href)
-        logger.info(f"Crawl successful, data length: {len(crawled_data)}")
-        # clean = re.sub(r"<think>.*?</think>", "", crawled_data, flags=re.DOTALL).strip()
-        # logger.info(f"Cleaned data length: {len(clean)}")
-        return {"result": crawled_data['specs']}
+        try:
+            crawled_data = scraper.scrape(info.href, method="html")
+            # logger.info(f"Crawl successful, data length: {len(crawled_data)}")
+            # clean = re.sub(r"<think>.*?</think>", "", crawled_data, flags=re.DOTALL).strip()
+            # logger.info(f"Cleaned data length: {len(clean)}")
+            return {"result": crawled_data['specs']}
+        except Exception as crawl_error:
+            return {"error": f"Failed to crawl data: {str(crawl_error)}"}
     except Exception as e:
         logger.error(f"Error in /hover endpoint: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -153,11 +156,10 @@ async def crawl_url(data: Data):
 
     try:
         results = DDGS().text(
-            f"{data.message} site:{data.url}", max_results=20
+            f"{data.message} site:{data.root}", max_results=10
         )
 
         # selected_urls = []
-        documents = []
 
         urls = []     
 

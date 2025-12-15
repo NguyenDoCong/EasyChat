@@ -59,14 +59,14 @@ class UniversalProductScraper:
         # Các pattern chung cho mọi website
         self.universal_patterns = {
             "price": [
-                r"(?:Giá [^:]*)[:\s]*([\d.,]+)",                
+                r"(?:Giá [^:]*)[:\s]*([\d.,]+)|(\d{1,3}(?:\.\d{3})+)"
                 # r"(?:VND)\s*([\d.,]+)",
-                # r"([\d.,]+)\s*(?:VND)",
+                # r"([\d.,]+)\s*(?:đ)",
             ],
-            "name": [
-                r"<h1[^>]*>(.*?)</h1>",
-                r"<title>(.*?)</title>",
-            ],
+            # "name": [
+            #     r"<h1[^>]*>(.*?)</h1>",
+            #     r"<title>(.*?)</title>",
+            # ],
         }
 
         # Config cho từng website cụ thể
@@ -164,7 +164,7 @@ class UniversalProductScraper:
         # 5. Nối lại thành đoạn văn bản hoàn chỉnh
         return ". ".join(unique_segments) + "."
 
-    def scrape(self, url: str, method: str = "auto") -> Dict[str, Any]:
+    def scrape(self, url: str, method: str = "html") -> Dict[str, Any]:
         """
         Scrape thông tin sản phẩm từ URL
 
@@ -198,6 +198,7 @@ class UniversalProductScraper:
             result = self._extract_hybrid(soup, html_content)
         else:  # html
             result = self._extract_from_html(soup, url)
+            # print("result html:", result)
 
         # Post-processing
         result = self._clean_result(result)
@@ -206,22 +207,27 @@ class UniversalProductScraper:
 
         # if not result["currency"]:
         # result["currency"] = ""
+        check_pattern = r"(\d{1,3}(?:\.\d{3})+)"
 
         if result:
-            try:
+            match = re.search(check_pattern, result["price"], re.IGNORECASE)
+            if match:
+                try:
 
-                specs = self._clean_redundant_text(result["description"])
+                    specs = self._clean_redundant_text(result["description"])
 
-                final_result = {
-                    "name": result["name"],
-                    "price": str(result["price"]),
-                    "specs": specs,
-                    "link": url,
-                    "image": result["images"][0],
-                }
-                # return final_result
-            except Exception as e:
-                print("lỗi xuất thông tin", e)
+                    final_result = {
+                        "name": result["name"],
+                        "price": str(result["price"]),
+                        "specs": specs,
+                        "link": url,
+                        "image": result["images"][0],
+                    }
+                    # return final_result
+                except Exception as e:
+                    print("lỗi xuất thông tin", e)
+                    final_result = False
+            else:
                 final_result = False
 
         # result['url'] = url
@@ -349,7 +355,7 @@ class UniversalProductScraper:
                             if img.get("src") or img.get("data-src")
                         ]
                     else:
-                        result[field] = elements[0].get_text(strip=True)
+                        result[field] = str(elements[0].get_text(strip=True))
                     break
 
         # Extract từ meta tags (Open Graph, Twitter Card)
@@ -360,18 +366,31 @@ class UniversalProductScraper:
 
         # Extract bằng regex patterns
         html_text = soup.get_text()
-        with open("demofile.txt", "a") as f:
+        html_text = html.unescape(html_text)
+        with open("demofile.txt", "w") as f:
             f.write(html_text)
         for field, patterns in self.universal_patterns.items():
-            # print("-------------------------")
-            # if field not in result or not result[field]:
-                # print("-----------------------")
-                for pattern in patterns:
-                    match = re.search(pattern, html_text, re.IGNORECASE)
-                    if match:
-                        print(match.group(1).strip())
-                        result[field] = match.group(1).strip()
-                        break
+            for pattern in patterns:
+                match = re.search(pattern, html_text, re.IGNORECASE)
+                if match:
+                    try:
+                        # Tìm group đầu tiên không phải None
+                        value = None
+                        for group_idx in range(1, len(match.groups()) + 1):
+                            if match.group(group_idx) is not None:
+                                value = match.group(group_idx).strip()
+                                break
+                        
+                        if value:
+                            print("pattern:", pattern)
+                            print("group:", value)
+                            result[field] = value
+                            break
+                    except (IndexError, AttributeError) as e:
+                        print(f"❌ Error extracting: {e}")
+                        continue
+                else:
+                    print(f"⚠️ pattern '{pattern}' - no match")                        
 
         return result
 
@@ -615,9 +634,11 @@ if __name__ == "__main__":
         llm_api_key="your-api-key-here",  # Thêm API key nếu dùng LLM
     )
 
+
     # Example 1: Scrape một sản phẩm
-    url = "https://rangdongstore.vn/den-led-op-tran-doi-mau-ln30n-22018w-p-240820004160"
-    result = scraper.scrape(url, method="auto")
+    # json ld - price 0: https://rangdong.com.vn/den-pha-led-100w-2019-pr1215.html
+    url = "https://rangdongstore.vn/cam-nang-rang-dong/tu-van-su-dung/cap-nhat-gia-den-led-highbay-100w-cho-san-pickleball-moi-nhat-2025"
+    result = scraper.scrape(url, method="html")
     print("\n📊 KẾT QUẢ:")
     print(json.dumps(result, indent=2, ensure_ascii=False))
 

@@ -1,1 +1,1984 @@
-[<script data-body="true" data-hid="website-structured-data-script" data-n-head="ssr" id="website-structured-data-script" type="application/ld+json">{"@context":"http://schema.org","@type":"WebSite","@id":"https://rangdongstore.vn/#website","name":"Rạng Đông Store","url":"https://rangdongstore.vn/","description":"Rạng Đông - Chuyên cung cấp đèn LED chuyên dụng cho nhà ở, văn phòng, trung tâm thương mại, nông nghiệp công nghệ cao, nhà xưởng, ngư nghiệp,...","inLanguage":"vi","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://rangdongstore.vn/tim-kiem?q={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}}</script>, <script data-body="true" data-hid="organization-structured-data-script" data-n-head="ssr" id="organization-structured-data-script" type="application/ld+json">{"@context":"http://schema.org","@type":"Organization","name":"Rạng Đông Store","description":"Cung cấp đèn LED chuyên dụng cho nhà ở, văn phòng - trung tâm thương mại, đèn LED nông nghiệp công nghệ cao, đèn LED nhà xưởng, đèn LED ngư nghiệp,...","url":"https://rangdongstore.vn","image":"https://rangdongstore.vn/cover.jpg","logo":"https://rangdongstore.vn/logo.png","contactPoint":{"@type":"ContactPoint","telephone":"1900 2098 - 0898109810","contactType":"Customer service"},"address":{"@type":"PostalAddress","streetAddress":"87-89 Phố Hạ Đình, Thanh Xuân Trung","addressLocality":"Thanh Xuân","addressRegion":"Hà Nội","postalCode":"100000","addressCountry":"VN"},"sameAs":["https://www.facebook.com/rangdongstore.vn/","https://www.youtube.com/channel/UCpErV6UKMmu-Gu3LA-DDS0A","https://www.linkedin.com/company/rangdongstore/","https://sites.google.com/view/rangdongstore/","https://www.pinterest.com/rangdongstore/","https://rangdongstorevn.blogspot.com/","https://twitter.com/rangdongstorevn"]}</script>, <script data-body="true" data-hid="breadcrumblist-structured-data-script" data-n-head="ssr" id="breadcrumblist-structured-data-script" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Trang chủ","item":"https://rangdongstore.vn"},{"@type":"ListItem","position":2,"name":"Siêu khuyến mãi"}]}</script>, <script data-body="true" data-hid="product-structured-data-script" data-n-head="ssr" id="product-structured-data-script" type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Siêu khuyến mãi","image":["https://static.rangdongstore.vn/231213015972/2023/12/13/Danh muc sieu khuyen mai -425x140.jpg","https://static.rangdongstore.vn/231213015973/2023/12/13/Danh muc sieu khuyen mai -296x808px.jpg"],"url":"https://rangdongstore.vn/sieu-khuyen-mai-c-221129000193/","description":null,"review":[]}</script>]
+
+
+
+
+Đèn LED Âm trần Downlight UV 135/14W Rạng Đông
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Giới thiệu
+
+
+
+Con đường phát triển
+
+
+
+Giới thiệu chung
+
+
+Lịch sử phát triển
+
+
+
+
+Hành trình Chuyển đổi số
+
+
+
+Năng lực tài chính
+
+
+Năng lực thị trường
+
+
+Năng lực sản xuất
+
+
+Năng lực OEM - ODM
+
+
+Năng lực KH&CN
+
+
+
+
+Hoạt động Cộng đồng
+
+
+
+Văn hóa Rạng Đông
+
+
+Trách nhiệm xã hội
+
+
+
+
+Danh hiệu - Giải thưởng
+
+
+Factory Tour
+
+
+
+Tin tức
+
+
+
+Nhà thông minh
+
+
+Hoạt động - Sự kiện
+
+
+Sản phẩm - Công nghệ
+
+
+Văn hóa nội bộ
+
+
+Khuyến mãi
+
+
+Tuyển dụng
+
+
+Báo chí với Rạng Đông
+
+
+Chuyển đổi số
+
+
+Hướng dẫn sử dụng
+
+
+
+Thông tin cổ đông
+
+
+
+Báo cáo tài chính
+
+
+Thông báo cổ đông
+
+
+Báo cáo thường niên
+
+
+Đại hội đồng cổ đông
+
+
+
+Điểm mua hàng
+Mua hàng trực tuyến
+Liên hệ
+Export
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Danh mục gợi ý
+
+
+Chiếu sáng outdoors
+
+
+
+
+
+Chiếu sáng học đường
+
+
+
+
+
+Chiếu sáng ngư nghiệp
+
+
+
+
+
+Chiếu sáng nhà xưởng
+
+
+
+
+
+Chiếu sáng đường
+
+
+
+
+
+Chiếu sáng văn phòng công sở
+
+
+
+
+
+Chiếu sáng nông nghiệp CNC
+
+
+
+
+
+Chiếu sáng nhà ở
+
+
+
+
+
+Sản phẩm gợi ý
+
+
+
+
+
+
+
+Đèn LED âm trần Downlight đổi màu AT02 110/10W
+AT02 ĐM 110/10W
+
+                                                                                                                Liên hệ
+                                                        
+
+
+ 
+
+
+
+
+
+
+Đèn LED âm trần Downlight đổi màu AT02 90/8W
+AT02 ĐM 90/8W
+
+                                                                                                                172.000 VNĐ
+                                                        
+
+
+ 
+
+
+
+
+
+
+Công tắc 2 chiều không Pin không dây 3 nút bấm
+CT2C V1.03
+
+                                                                                                                562.000 VNĐ
+                                                        
+
+
+ 
+
+
+
+
+
+
+Công tắc cảm ứng thông minh wifi 1 nút bấm
+CTCU.WF CN.01T.2W.SP
+
+                                                                                                                700.000 VNĐ
+                                                        
+
+
+ Xem tất cả
+
+
+Bài viết gợi ý
+
+
+
+
+
+
+
+Những ai nên sử dụng công tắc thông minh? Có thực sự cần thiết không?
+
+
+
+
+
+
+
+
+
+
+Công tắc thông minh hoạt động như thế nào? Hướng dẫn chi tiết cho người mới
+
+
+
+
+
+
+
+
+
+
+Những lợi ích tuyệt vời của công tắc thông minh mà bạn không thể bỏ qua
+
+
+
+
+
+
+
+
+
+
+Công tắc thông minh là gì? Tất cả những điều bạn cần biết trước khi nâng cấp nhà ở
+
+
+
+Xem tất cả
+
+
+
+Giới thiệu
+
+
+Giới thiệu
+
+Con đường phát triển
+
+
+
+Giới thiệu chung
+
+
+Lịch sử phát triển
+
+
+
+
+Hành trình Chuyển đổi số
+
+
+
+Năng lực tài chính
+
+
+Năng lực thị trường
+
+
+Năng lực sản xuất
+
+
+Năng lực OEM - ODM
+
+
+Năng lực KH&CN
+
+
+
+
+Hoạt động Cộng đồng
+
+
+
+Văn hóa Rạng Đông
+
+
+Trách nhiệm xã hội
+
+
+
+
+Danh hiệu - Giải thưởng
+
+
+
+
+
+Factory Tour
+
+
+
+
+
+
+Tin tức
+
+
+Tin tức
+Nhà thông minh
+
+
+
+Hoạt động - Sự kiện
+
+
+
+Sản phẩm - Công nghệ
+
+
+
+Văn hóa nội bộ
+
+
+
+Khuyến mãi
+
+
+
+Tuyển dụng
+
+
+
+Báo chí với Rạng Đông
+
+
+
+Chuyển đổi số
+
+
+
+Hướng dẫn sử dụng
+
+
+
+
+
+
+Thông tin cổ đông
+
+
+Thông tin cổ đông
+Báo cáo tài chính
+
+
+
+Thông báo cổ đông
+
+
+
+Báo cáo thường niên
+
+
+
+Đại hội đồng cổ đông
+
+
+
+
+
+
+Điểm mua hàng
+
+Mua hàng trực tuyến
+
+Liên hệ
+
+Export
+
+
+Giải pháp chiếu sáng
+
+
+
+Học đường
+
+
+
+Giải pháp học đường
+
+
+
+Giải pháp tổng thể học đường
+
+
+Giải pháp lớp học - giảng đường
+
+
+Giải pháp khu hành chính - quản lý
+
+
+Giải pháp phòng thể chất - sân thể thao
+
+
+Giải pháp khu vực sinh hoạt chung
+
+
+Giải pháp khuôn viên
+
+
+Giải pháp phòng điều khiển trung tâm
+
+
+Giải pháp điện áp mái
+
+
+Gói giải pháp chiếu sáng trong học đường
+
+
+
+
+Sản phẩm học đường
+
+
+
+Chiếu sáng lớp học
+
+
+Chiếu sáng bảng
+
+
+Chiếu sáng phòng thể chất
+
+
+Chiếu sáng sân thể thao ngoài trời
+
+
+Chiếu sáng khu hành chính, quản lý
+
+
+Chiếu sáng các khu vực chung
+
+
+Chiếu sáng cảnh quan ngoài trời
+
+
+Thiết bị điện, thiết bị điều khiển thông minh
+
+
+
+
+Dành cho đối tác - khách hàng
+
+
+
+Tri thức nền
+
+
+Video HDSD
+
+
+Tin tức
+
+
+
+
+Dự án đã triển khai
+
+
+Công cụ tài liệu
+
+
+
+Gói giải pháp học đường
+
+
+Tiêu chuẩn, quy chuẩn chiếu sáng
+
+
+Catalogue chiếu sáng học đường
+
+
+Hồ sơ năng lực
+
+
+
+
+
+
+Đường phố IoT
+
+
+
+Giải pháp chiếu sáng
+
+
+Sản phẩm
+
+
+Catalogue
+
+
+
+Catalogue
+
+
+Bảng giá
+
+
+
+
+
+
+Cây hoa cúc
+
+
+
+Giải pháp chiếu sáng
+
+
+Sản phẩm
+
+
+
+
+Cây thanh long
+
+
+Ngư nghiệp
+
+
+Nuôi cấy mô
+
+
+Trung tâm thương mại
+
+
+Văn phòng công sở
+
+
+Nhà máy công nghiệp
+
+
+Hệ thống điện áp mái
+
+
+Chiếu sáng cảnh quan
+
+
+
+Sản phẩm
+
+
+
+Sản phẩm chiếu sáng
+
+
+Đèn LED Downlight âm trần
+
+
+Bóng đèn LED Bulb
+
+
+Bộ đèn LED tuýp
+
+
+Bóng đèn LED tuýp
+
+
+Đèn LED ốp trần
+
+
+Đèn LED Panel
+
+
+Đèn LED chiếu pha
+
+
+Đèn LED Highbay
+
+
+Đèn đường LED
+
+
+Sản phẩm học đường
+
+
+Đèn điều hòa phòng tắm
+
+
+Đèn LED dây
+
+
+Đèn LED Tracklight
+
+
+Đèn LED gắn tường
+
+
+Đèn LED gương
+
+
+Đèn ray LED
+
+
+Đèn led Linear
+
+
+Bộ đèn bán nguyệt
+
+
+Đèn LED chỉ dẫn
+
+
+Đèn LED chống ẩm
+
+
+Phụ kiện đèn LED
+
+
+Sản phẩm công trình dự án
+
+
+
+Sản phẩm chuyên dụng
+
+
+Nông nghiệp công nghệ cao
+
+
+Năng lượng mặt trời
+
+Đèn pha NLMT
+Đèn đường NLMT
+Điện mặt trời mái nhà
+
+
+
+Chiếu sáng ngư nghiệp
+
+
+
+Thiết bị điện
+
+
+Aptomat
+
+
+Tủ Aptomat
+
+
+Vỏ hộp Aptomat
+
+
+Đèn pin
+
+
+Ổ cắm điện
+
+
+Phích cắm điện
+
+
+Hạt công tắc
+
+
+Mặt công tắc
+
+
+Đèn bắt muỗi, côn trùng
+
+
+Thiết bị cảm biến
+
+
+Vợt bắt muỗi
+
+
+Quạt hút
+
+
+Đèn bàn bảo vệ thị lực
+
+
+
+Sản phẩm phích nước
+
+
+Phích đựng nước (Vintage)
+
+
+Bình nước cầm tay
+
+
+Phích cầm tay
+
+
+Bình giữ nhiệt
+
+
+Bình đựng thức ăn
+
+
+Bình ủ
+
+
+Ruột phích
+
+
+Phích pha trà - Cà phê
+
+
+Phích quà tặng
+
+
+Phích tết
+
+
+Ấm siêu tốc
+
+
+
+
+Cửa hàng online
+
+
+
+
+Nhà thông minh RalliSmart
+
+
+
+Sản phẩm nhà thông minh
+
+
+Đèn thông minh
+
+Đèn LED Bulb thông minh
+Đèn LED âm trần Downlight thông minh
+Đèn LED ốp trần thông minh
+Đèn LED Panel thông minh
+Đèn LED dây thông minh
+Đèn LED Tracklight thông minh
+Đèn LED Linear thông minh
+Đèn ray LED thông minh
+Đèn thả trần thông minh
+
+
+
+Công tắc thông minh
+
+Công tắc đèn thông minh
+Công tắc cửa cuốn thông minh
+Công tắc rèm thông minh
+Công tắc chuyển mạch thông minh
+Công tắc không pin không dây
+Công tắc cơ điện tử
+Công tắc núm xoay
+
+
+
+Ổ cắm thông minh
+
+
+Cảm biến thông minh
+
+Cảm biến ánh sáng
+Cảm biến bụi mịn
+Cảm biến chuyển động
+Cảm biến cửa
+Cảm biến khói
+Cảm biến nhiệt độ
+
+
+
+Bảng điều khiển cảnh
+
+
+Camera thông minh
+
+
+Công tắc chuyển mạch
+
+
+Khóa cửa thông minh
+
+
+Ổ cắm chống giật
+
+
+Bộ điều khiển trung tâm
+
+
+Aptomat thông minh
+
+
+Bộ lặp sóng
+
+
+Combo Smart
+
+
+
+Giải pháp nhà thông minh
+
+
+Giải pháp chiếu sáng thông minh
+
+
+Giải pháp tiết kiệm điện
+
+
+Giải pháp an ninh an toàn
+
+
+Giải pháp điều khiển thông minh
+
+
+Giải pháp cải thiện môi trường
+
+
+
+Trải nghiệm showroom Rallismart
+
+
+Phú Thọ
+
+
+Hải Dương
+
+
+Hà Nội
+
+Showroom Hạ Đình
+Showroom Đông Anh
+Showroom Hòa Mã
+
+
+
+Nam Định
+
+
+Thanh Hóa
+
+
+Nghệ An
+
+
+Đà Nẵng
+
+
+Nha Trang
+
+
+Đắk Lắk
+
+
+Biên Hòa
+
+
+TP HCM
+
+
+Tiền Giang
+
+
+Cần Thơ
+
+
+
+Hỗ trợ khách hàng
+
+
+Tài liệu
+
+Catalogue
+Hướng dẫn sử dụng
+Thư viện video
+
+
+
+Điểm mua hàng
+
+Hệ thống showroom
+Hệ thống phân phối và điểm bán Smart
+
+
+
+Câu hỏi thường gặp
+
+
+Công trình tiêu biểu
+
+
+Tin tức nhà thông minh
+
+
+Liên hệ
+
+
+
+Dành cho đối tác - khách hàng
+
+
+Tài liệu kỹ thuật
+
+Tiêu chuẩn, quy chuẩn chiếu sáng
+Dữ liệu IES
+Chứng nhận ISO
+
+
+
+Công cụ tính toán chiếu sáng
+
+
+Tri thức nền
+
+
+Câu hỏi thường gặp
+
+Đối tác thợ điện
+Tư vấn thiết kế - KTS
+
+
+
+
+
+
+
+Tri thức nền
+
+
+
+Indoor
+
+
+
+Nhà thông minh
+
+
+Chiếu sáng Văn phòng công sở
+
+
+Chiếu sáng Trung tâm thương mại
+
+
+Chiếu sáng Bệnh viện
+
+
+Chiếu sáng Công nghiệp
+
+
+Học đường
+
+
+
+
+Outdoor
+
+
+
+Chiếu sáng cảnh quan
+
+
+Chiếu sáng đường phố thông minh
+
+
+
+
+Smart Farm
+
+
+
+Giải pháp Smart IoT
+
+
+Chiếu sáng hoa cúc
+
+
+Chiếu sáng thanh long
+
+
+Chiếu sáng nuôi cấy mô
+
+
+Chiếu sáng rau đô thị
+
+
+Chiếu sáng ngư nghiệp
+
+
+
+
+Năng lượng tái tạo
+
+
+Các đại lượng chiếu sáng
+
+
+Chiếu sáng HCL - Vì sức khỏe HP con người
+
+
+Câu chuyện ánh sáng
+
+
+
+Công cụ - Tài liệu
+
+
+
+Tính toán điện năng lượng mặt trời
+
+
+Công cụ tính toán chiếu sáng
+
+
+Bảng giá
+
+
+Catalogue
+
+
+Hồ sơ năng lực
+
+
+Tiêu chuẩn, quy chuẩn chiếu sáng
+
+
+Dữ liệu IES
+
+
+Hướng dẫn sử dụng
+
+
+Công bố Hợp quy
+
+
+Công bố chất lượng
+
+
+Tài liệu Phích
+
+
+Chứng nhận tiến bộ kỹ thuật
+
+
+Chứng nhận ISO
+
+
+Thư viện video
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>
+    
+
+
+
+×
+
+
+
+
+LED PRODUCTS
+
+
+VACUUM FLASK
+
+
+
+
+Close
+
+
+
+ 
+
+
+
+Trang chủ
+Danh mục
+Đèn LED
+Đèn LED Downlight âm trần
+Đèn LED Downlight âm trần diệt khuẩn
+Đèn LED âm trần Downlight diệt khuẩn AT21.UV 135/14W
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Đèn LED âm trần Downlight diệt khuẩn AT21.UV 135/14W
+Model: AT21.UV 135/14W
+
+Tìm sản phẩm tương tự
+
+
+
+
+
+Công suất:
+ 14W
+
+
+
+Điện áp:
+ 220V/50Hz
+
+
+
+Nhiệt độ màu:
+ 6500K
+
+
+
+Quang thông:
+ 1000lm
+
+
+
+Góc phát hiện rada:
+ 90 độ
+
+
+
+Chiều cao lắp đặt:
+ (2.8-3.5)m
+
+
+
+Kích thước (ØxH):
+ (149x51)mm
+
+
+
+ĐK lỗ khoét trần:
+ 135mm
+
+
+
+
+
+
+
+Thiết kế 3 trong 1: Tiêu diệt vi khuẩn - Làm sạch không khí - Chiếu sáng.
+Tích hợp cảm biến Radar, tuyệt đối an toàn cho người sử dụng.
+Dễ dàng lắp đặt và sử dụng.
+Tiết kiệm thời gian, nguồn lực và chi phí cho hoạt động khử khuẩn.
+An toàn cho sức khỏe và thân thiện với môi trường.
+
+
+
+
+Công suất
+
+
+
+135/14W
+
+
+90/7W
+
+
+
+
+Giá bán lẻ đề xuất:                                  1.048.000 VNĐ
+                                
+
+1900 2098
+
+MUA HÀNG ONLINE
+
+MUA HÀNG Ở ĐÂU
+XEM TẤT CẢ SẢN PHẨM
+
+
+
+
+
+
+
+
+
+
+Ưu điểm
+Thông số kỹ thuật
+Tài liệu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ưu điểm nổi trội
+
+
+Tuyệt đối an toàn:
+Cảm biến radar hiện đại và hệ thống phát hiện lỗi tự động được tích hợp nhằm đảm bảo an toàn.
+
+(Tự động phát hiện xem radar có hoạt động bình thường không sau mỗi lần khởi động. Nếu có sự cố, cảm biển radar đèn sẽ tắt chức năng khử trùng).
+
+
+
+
+Tính năng
+
+
+
+Tích hợp Chip LED UV-C khi bật sẽ tiêu diệt 99.9% vi sinh vật có hại
+
+
+
+
+
+
+
+Tích hợp công nghệ cảm biến, đèn hoạt động thông minh
+Tự động sáng như đèn thường khi có người và bật chế độ khử khuẩn khi người rời đi (tự động). Người dùng cũng có thể tuỳ ý sử dụng đèn thường hay đèn khử khuẩn bằng công tắc ON/OFF (thủ công)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lợi ích khi sử dụng sản phẩm
+  
+
+Tiết kiệm thời gian, nguồn lực và chi phí cho hoạt động khử khuẩn.
+
+
+An toàn cho sức khoẻ và thân thiện với môi trường.
+
+
+Tiết kiệm thời gian, nguồn lực và chi phí cho hoạt động khử khuẩn.
+An toàn cho sức khoẻ và thân thiện với môi trường.
+
+
+
+
+
+Cấu tạo và hoạt động của sản phẩm
+
+màu ánh sáng
+Trắng/Vàng
+cho khách hàng lựa chọn cho mục đích chiếu sáng
+
+
+
+Ánh sáng vàng 3000K dùng cho phòng ngủ, hành lang, phòng tắm, quán cà phê,...
+
+
+Ánh sáng vàng 6500K dùng cho phòng khách, phòng tập gym, văn phòng làm việc, ...
+
+
+
+
+
+Dễ dàng lắp đặt và sử dụng
+
+Lắp đặt giống các loại đèn Downlight khác.
+Không cần sử dụng thêm dây điện hay công tắc.
+
+
+
+
+
+Chế độ tự động
+
+Ấn ON/OFF/ON/OFF/ON
+Khi phát hiện có người, đèn sẽ tự động bật sáng như đèn thường.
+Sau khi người rời đi 5 phút, đèn tự động chuyển sang chế độ diệt khuẩn.
+
+Chế độ khử khuẩn
+
+Tự động: 20 phút
+Thủ công (chuyên sâu): 2 giờ
+
+
+
+Chế độ thủ công
+
+Ấn ON để sử dụng đèn chiếu sáng thông thường.
+Ấn ON/OFF/ON để bật chế độ khử khuẩn
+
+
+
+
+
+
+
+
+
+
+
+
+Ứng dụng
+Chế độ khử trùng thủ công phù hợp với các khu vực như bệnh viện, trường học, nhà hàng, quán bar, cửa hàng, tiệm cắt tóc, khách sạn, văn phòng, căn hộ và các không gian tương tự khác cần khử khuẩn.
+
+
+Nhà hàng
+
+
+Quán bar
+
+
+Phòng tập gym
+
+
+
+Chế độ khử trùng tự động phù hợp với các không gian nhỏ có người qua lại như thang máy, nhà vệ sinh, phòng thay đồ, hành lang, văn phòng cá nhân và các không gian tương tự.
+
+
+Phòng thay đồ
+
+
+Thang máy
+
+
+Nhà vệ sinh
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Thông số chiếu sáng thông thường
+
+
+
+
+Công suất 
+14W
+
+
+Quang thông  
+1000 lm
+
+
+Nhiệt độ màu
+6500K
+
+
+Dòng điện tối đa
+0.1 A
+
+
+Hiệu suất quang
+71 lm/W
+
+
+Hệ số công suất  
+0.9
+
+
+Chỉ số hoàn màu
+80
+
+
+Tuổi thọ  
+35.000 giờ
+
+
+
+
+
+
+
+
+
+
+Thông số khác
+
+
+
+
+Góc phát hiện của Rada 
+90 độ
+
+
+Tần số
+5.8G
+
+
+Chiều cao lắp đặt
+(2.8-3.5)m
+
+
+Kích thước (ØxC) 
+(149x51)mm
+
+
+Đường kính khoét trần
+135mm
+
+
+
+
+
+
+
+
+Năng lượng UV
+
+
+
+
+Công suất                       
+18W
+
+
+Diện tích khử trùng
+(3x3) m2
+
+
+Chế độ khử trùng
+20 phút chế độ tự động
+			2 giờ chế độ chuyên sâu
+
+
+Tuổi thọ
+10.000 giờ
+
+
+Bước sóng LED UV-C
+(260-285)nm
+
+
+
+
+
+
+
+
+Tiêu chuẩn chất lượng sản phẩm
+
+
+
+
+Tiêu chuẩn áp dụng       
+TCVN 7722-2-2/IEC 60598-2-2
+			TCVN 10885-2-1/IEC 62722-2-1
+
+
+
+
+
+
+
+ 
+ 
+
+ 
+
+
+
+
+
+
+
+
+Xem hướng dẫn sử dụng Xem tất cả sản phẩm
+ 
+
+
+
+
+
+
+
+
+Sản phẩm tương tự
+
+
+
+
+
+
+
+
+
+
+Đèn LED Âm trần diệt khuẩn
+Model: AT21.UV 90/7W
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Điều khoản sử dụng
+Chính sách bảo mật
+Chính sách Cookies
+Bảo hành
+Kết nối với Rạng Đông tại:
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+Điều khoản sử dụng
+Chính sách bảo mật
+Chính sách Cookies
+Bảo hành
+
+
+Theo dõi Rạng Đông trên
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+CÔNG TY CỔ PHẦN BÓNG ĐÈN PHÍCH NƯỚC RẠNG ĐÔNG
+
+Địa chỉ: Số 87-89, Phố Hạ Đình, Phường Khương Đình, TP Hà Nội
+024 3858 4310 / 0243 858 4165
+
+
+ ralaco@rangdong.com.vn
+Hotline: 1900 2098
+
+
+
+
+
+Dịch vụ Rạng Đôngsẵn sàng phục vụ
+
+
+
+ĐĂNG KÝ
+
+
+
+
+
+
+
+
+
+
+ THÔNG TIN CÔNG TY
+
+
+
+Giới thiệu
+Tin tức
+Thông tin Cổ đông
+Điểm mua hàng
+Mua hàng trực tuyến
+
+
+
+ Khách hàng/Đối tác
+
+
+
+Khách hàng đại chúng
+Chuyên dụng - Đối tác
+Công cụ tài liệu
+Tri thức nền
+Tính toán chiếu sáng
+
+
+
+ SẢN PHẨM
+
+
+
+Đèn LED chiếu sáng
+Nhà thông minh RalliSmart
+Năng lượng mặt trời
+Thiết bị điện
+Nông nghiệp công nghệ cao
+
+
+
+ Hệ thống giải pháp
+
+
+
+Điện NLMT mái nhà
+Học đường
+Chiếu sáng cảnh quan
+Đường phố IoT
+Văn phòng công sở
+
+
+
+
+
+
+
+
+
+
+GPĐKKD số: 0103004893 do sở KHĐT TP Hà Nội cấp ngày 15/07/2004 COPYRIGHT ©2021 - CÔNG TY CP BÓNG ĐÈN PHÍCH NƯỚC RẠNG ĐÔNG
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1900.2098
+
+
+
+
+
+
+
+
