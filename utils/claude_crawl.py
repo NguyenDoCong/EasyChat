@@ -132,6 +132,7 @@ class UniversalProductScraper:
                         '[itemprop="image"]',
                         ".product-image img",
                         'img[alt*="product"]',
+                        'img'
                     ],
                     "sku": ['[itemprop="sku"]', ".sku", ".product-code"],
                     "brand": ['[itemprop="brand"]', ".brand"],
@@ -342,22 +343,7 @@ class UniversalProductScraper:
         # Xác định config dựa trên domain
         domain = urlparse(url).netloc
         config = self.site_configs.get(domain, self.site_configs["default"])
-
-        # Extract theo selectors
-        for field, selectors in config["selectors"].items():
-            for selector in selectors:
-                elements = soup.select(selector)
-                if elements:
-                    if field == "images":
-                        result[field] = [
-                            img.get("src") or img.get("data-src")
-                            for img in elements
-                            if img.get("src") or img.get("data-src")
-                        ]
-                    else:
-                        result[field] = str(elements[0].get_text(strip=True))
-                    break
-
+        
         # Extract từ meta tags (Open Graph, Twitter Card)
         result.update(self._extract_from_meta_tags(soup))
 
@@ -382,15 +368,37 @@ class UniversalProductScraper:
                                 break
                         
                         if value:
-                            print("pattern:", pattern)
-                            print("group:", value)
+                            # print("pattern:", pattern)
+                            # print("group:", value)
                             result[field] = value
                             break
                     except (IndexError, AttributeError) as e:
                         print(f"❌ Error extracting: {e}")
                         continue
                 else:
-                    print(f"⚠️ pattern '{pattern}' - no match")                        
+                    print(f"⚠️ pattern '{pattern}' - no match")    
+
+        # Extract theo selectors
+        for field, selectors in config["selectors"].items():
+            for selector in selectors:
+                elements = soup.select(selector)
+                if elements:
+                    # print(f"elements {field}:", elements)
+                    if field == "images" and result["name"]:
+                        # print("elements images:", elements)
+                        for img in elements:
+                            # if (img.get("src") or (img.get("data-src")) and (img.get("alt") and(img.get("alt")==result["name"]))):
+                            if (img.get("alt")==result["name"]):
+                                print(img.get("alt") )
+                                print("name:", result["name"])
+                                result[field] = [
+                                    img.get("src") or img.get("data-src")
+                                ]
+                                break                            
+                        print("result images:", result[field])
+                    else:
+                        result[field] = str(elements[0].get_text(strip=True))
+                    break                                        
 
         return result
 
@@ -549,6 +557,25 @@ Chỉ trả về JSON, không giải thích.
 
         return result
 
+    def _json_ld_html(self, soup: BeautifulSoup, html_content: str) -> Dict:
+        """
+        Kết hợp nhiều phương pháp để đạt độ chính xác cao nhất
+        """
+        result = {}
+
+        # 1. JSON-LD (ưu tiên cao nhất)
+        json_ld_data = self._extract_from_json_ld(soup)
+        result.update(json_ld_data)
+
+        # 2. HTML structure
+        html_data = self._extract_from_html(soup, "")
+        for key, value in html_data.items():
+            if key=="price" or key=="description":
+                result[key] = value
+
+        return result
+            
+
     def _clean_result(self, result: Dict) -> Dict:
         """
         Làm sạch và chuẩn hóa dữ liệu
@@ -567,7 +594,7 @@ Chỉ trả về JSON, không giải thích.
                     if "\\u" in value or "ƒ" in value or "√" in value:
                         # Try to fix mojibake
                         value = value.encode("latin1").decode("utf-8", errors="ignore")
-                except:
+                except Exception:
                     pass
 
                 # Remove extra whitespace
@@ -637,7 +664,7 @@ if __name__ == "__main__":
 
     # Example 1: Scrape một sản phẩm
     # json ld - price 0: https://rangdong.com.vn/den-pha-led-100w-2019-pr1215.html
-    url = "https://rangdongstore.vn/cam-nang-rang-dong/tu-van-su-dung/cap-nhat-gia-den-led-highbay-100w-cho-san-pickleball-moi-nhat-2025"
+    url = "https://rangdong.com.vn/den-duong-led-100w-da-pr1348.html"
     result = scraper.scrape(url, method="html")
     print("\n📊 KẾT QUẢ:")
     print(json.dumps(result, indent=2, ensure_ascii=False))

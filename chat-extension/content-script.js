@@ -916,7 +916,7 @@
     // Fetch data từ API
     async function fetchOverlayData(url, overlay) {
         try {
-            url = url.includes("https") ? url : "https://rangdongstore.vn/" + url
+            url = url.includes("https") ? url : window.location.origin + url
             console.log('Fetching data for:', url);
 
             const response = await fetch("http://127.0.0.1:8000/hover", {
