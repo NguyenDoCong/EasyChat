@@ -94,7 +94,7 @@ class Info(BaseModel):
     href: str
 
 @app.post("/hover")
-def receive_hover(info: Info):
+async def receive_hover(info: Info):
     logger.info(f"User hovered: {info.href}")
     try:
         scraper = UniversalProductScraper(
@@ -103,7 +103,7 @@ def receive_hover(info: Info):
         )
         logger.info("Crawling data...")
         try:
-            crawled_data = scraper.scrape(info.href, method="html")
+            crawled_data = await scraper.scrape(info.href, method="html")
             # logger.info(f"Crawl successful, data length: {len(crawled_data)}")
             # clean = re.sub(r"<think>.*?</think>", "", crawled_data, flags=re.DOTALL).strip()
             # logger.info(f"Cleaned data length: {len(clean)}")
@@ -156,7 +156,7 @@ async def crawl_url(data: Data):
 
     try:
         results = DDGS().text(
-            f"{data.message} site:{data.root}", max_results=10
+            f"{data.message} site:{data.root}", max_results=20
         )
 
         # selected_urls = []

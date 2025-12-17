@@ -12,6 +12,8 @@ from urllib.parse import urlparse
 import time
 import random
 import html
+import asyncio
+# from utils.crawl_request_html import crawl_webpage as async_crawl_webpage
 
 def get_useragent():
     """
@@ -59,7 +61,7 @@ class UniversalProductScraper:
         # Các pattern chung cho mọi website
         self.universal_patterns = {
             "price": [
-                r"(?:Giá [^:]*)[:\s]*([\d.,]+)|(\d{1,3}(?:\.\d{3})+)"
+                r"(?:Giá [^:]*)[:\s]*([\d.,]+)|(\d{1,3}(?:\.\d{3})+\s*(?:đ))"
                 # r"(?:VND)\s*([\d.,]+)",
                 # r"([\d.,]+)\s*(?:đ)",
             ],
@@ -127,6 +129,7 @@ class UniversalProductScraper:
                         '[itemprop="description"]',
                         ".description",
                         ".product-description",
+                        ".summary-content"                        
                     ],
                     "images": [
                         '[itemprop="image"]',
@@ -165,7 +168,7 @@ class UniversalProductScraper:
         # 5. Nối lại thành đoạn văn bản hoàn chỉnh
         return ". ".join(unique_segments) + "."
 
-    def scrape(self, url: str, method: str = "html") -> Dict[str, Any]:
+    def scrape(self, url: str, method: str = "hybrid") -> Dict[str, Any]:
         """
         Scrape thông tin sản phẩm từ URL
 
@@ -177,6 +180,7 @@ class UniversalProductScraper:
 
         # Fetch HTML
         html_content = self._fetch_url(url)
+        # print("html_content:", html_content)
         if not html_content:
             # return {"error": "Failed to fetch URL"}
             return None
@@ -197,6 +201,7 @@ class UniversalProductScraper:
             result = self._extract_with_llm(html_content)
         elif method == "hybrid":
             result = self._extract_hybrid(soup, html_content)
+
         else:  # html
             result = self._extract_from_html(soup, url)
             # print("result html:", result)
@@ -211,25 +216,26 @@ class UniversalProductScraper:
         check_pattern = r"(\d{1,3}(?:\.\d{3})+)"
 
         if result:
-            match = re.search(check_pattern, result["price"], re.IGNORECASE)
-            if match:
-                try:
+            try:
+            
+                match = re.search(check_pattern, str(result["price"]), re.IGNORECASE)
+                if match:
 
-                    specs = self._clean_redundant_text(result["description"])
+                        specs = self._clean_redundant_text(result["description"])
 
-                    final_result = {
-                        "name": result["name"],
-                        "price": str(result["price"]),
-                        "specs": specs,
-                        "link": url,
-                        "image": result["images"][0],
-                    }
-                    # return final_result
-                except Exception as e:
-                    print("lỗi xuất thông tin", e)
-                    final_result = False
-            else:
+                        final_result = {
+                            "name": result["name"],
+                            "price": str(result["price"]),
+                            "specs": specs,
+                            "link": url,
+                            "image": result["images"][0],
+                        }
+                        # return final_result
+            except Exception as e:
+                print("lỗi xuất thông tin", e, url)
                 final_result = False
+            # else:
+            #     final_result = False
 
         # result['url'] = url
         # result['scrape_method'] = method
@@ -248,6 +254,11 @@ class UniversalProductScraper:
                 response.encoding = "utf-8"
                 if response.status_code == 200:
                     return response.text
+
+                # response = await async_crawl_webpage(url)
+                # if response:
+                #     return response
+                
                 elif response.status_code == 403:
                     print(f"⚠️  Bị chặn, thử lại lần {i + 1}...")
                     time.sleep(2)
@@ -288,8 +299,8 @@ class UniversalProductScraper:
         result = {}
 
         json_ld_scripts = soup.find_all("script", type="application/ld+json")
-        with open("demofile.txt", "w") as f:
-            f.write(str(json_ld_scripts))
+        # with open("demofile.txt", "w") as f:
+        #     f.write(str(json_ld_scripts))
 
         for script in json_ld_scripts:
             try:
@@ -381,6 +392,7 @@ class UniversalProductScraper:
         # Extract theo selectors
         for field, selectors in config["selectors"].items():
             for selector in selectors:
+                # print("selector:", selector)
                 elements = soup.select(selector)
                 if elements:
                     # print(f"elements {field}:", elements)
@@ -397,8 +409,17 @@ class UniversalProductScraper:
                                 break                            
                         print("result images:", result[field])
                     else:
-                        result[field] = str(elements[0].get_text(strip=True))
-                    break                                        
+                        if field == "description" and result["description"]:
+                        
+                            max=""
+                            for element in elements:
+                                if len(element.get_text(strip=True))>len(max):
+                                    max=element.get_text(strip=True)
+                                    # print("max:", max)
+                            result[field] = str(max)
+                        # else:
+                        #     result[field] = elements[0].get_text(strip=True)
+                        #     break                                        
 
         return result
 
@@ -541,40 +562,22 @@ Chỉ trả về JSON, không giải thích.
         # 1. JSON-LD (ưu tiên cao nhất)
         json_ld_data = self._extract_from_json_ld(soup)
         result.update(json_ld_data)
+        print("keys json_ld_data:", json_ld_data.keys())
 
         # 2. HTML structure
         html_data = self._extract_from_html(soup, "")
         for key, value in html_data.items():
-            if key not in result or not result[key]:
+            if key not in result or not result[key] or key == "price":
                 result[key] = value
 
-        # 3. LLM cho các trường còn thiếu
-        if self.use_llm and len(result) < 5:
-            llm_data = self._extract_with_llm(html_content)
-            for key, value in llm_data.items():
-                if key not in result or not result[key]:
-                    result[key] = value
+        # # 3. LLM cho các trường còn thiếu
+        # if self.use_llm and len(result) < 5:
+        #     llm_data = self._extract_with_llm(html_content)
+        #     for key, value in llm_data.items():
+        #         if key not in result or not result[key]:
+        #             result[key] = value
 
-        return result
-
-    def _json_ld_html(self, soup: BeautifulSoup, html_content: str) -> Dict:
-        """
-        Kết hợp nhiều phương pháp để đạt độ chính xác cao nhất
-        """
-        result = {}
-
-        # 1. JSON-LD (ưu tiên cao nhất)
-        json_ld_data = self._extract_from_json_ld(soup)
-        result.update(json_ld_data)
-
-        # 2. HTML structure
-        html_data = self._extract_from_html(soup, "")
-        for key, value in html_data.items():
-            if key=="price" or key=="description":
-                result[key] = value
-
-        return result
-            
+        return result            
 
     def _clean_result(self, result: Dict) -> Dict:
         """
@@ -655,30 +658,33 @@ Chỉ trả về JSON, không giải thích.
 
 # ===== USAGE EXAMPLES =====
 if __name__ == "__main__":
-    # Khởi tạo scraper
-    scraper = UniversalProductScraper(
-        use_llm=False,  # Set True nếu muốn dùng LLM
-        llm_api_key="your-api-key-here",  # Thêm API key nếu dùng LLM
-    )
+    def main():
+        # Khởi tạo scraper
+        scraper = UniversalProductScraper(
+            use_llm=False,  # Set True nếu muốn dùng LLM
+            llm_api_key="your-api-key-here",  # Thêm API key nếu dùng LLM
+        )
 
 
-    # Example 1: Scrape một sản phẩm
-    # json ld - price 0: https://rangdong.com.vn/den-pha-led-100w-2019-pr1215.html
-    url = "https://rangdong.com.vn/den-duong-led-100w-da-pr1348.html"
-    result = scraper.scrape(url, method="html")
-    print("\n📊 KẾT QUẢ:")
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+        # Example 1: Scrape một sản phẩm
+        # json ld - price 0: https://rangdong.com.vn/den-pha-led-100w-2019-pr1215.html
+        url = "https://rangdong.com.vn/den-duong-led-100w-da-pr1348.html"
+        result = scraper.scrape(url, method="hybrid")  # 'auto', 'html', 'json_ld', 'llm', 'hybrid'
+        print("\n📊 KẾT QUẢ:")
+        print(json.dumps(result, indent=2, ensure_ascii=False))
 
-    # Example 2: Scrape nhiều sản phẩm
-    urls = [
-        "https://shopee.vn/product1",
-        "https://tiki.vn/product2",
-        "https://lazada.vn/product3",
-    ]
-    # results = scraper.scrape_multiple(urls)
-    # scraper.save_results(results, 'products.json')
+        # Example 2: Scrape nhiều sản phẩm
+        urls = [
+            "https://shopee.vn/product1",
+            "https://tiki.vn/product2",
+            "https://lazada.vn/product3",
+        ]
+        # results = scraper.scrape_multiple(urls)
+        # scraper.save_results(results, 'products.json')
 
-    # Example 3: Scrape với phương pháp cụ thể
-    # result = scraper.scrape(url, method='json_ld')  # Chỉ dùng JSON-LD
-    # result = scraper.scrape(url, method='llm')      # Chỉ dùng LLM
-    # result = scraper.scrape(url, method='hybrid')   # Kết hợp tất cả
+        # Example 3: Scrape với phương pháp cụ thể
+        # result = scraper.scrape(url, method='json_ld')  # Chỉ dùng JSON-LD
+        # result = scraper.scrape(url, method='llm')      # Chỉ dùng LLM
+        # result = scraper.scrape(url, method='hybrid')   # Kết hợp tất cả
+    # asyncio.run(main())
+    main()

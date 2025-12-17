@@ -10,17 +10,17 @@ async def crawl_webpage(url):
 
         # r.html.render(timeout=20)
 
-        return r, url
+        # return r, url
 
-        clean_text = r.html.text
+        text = r.html.text
 
-        links = list(r.html.absolute_links)
+        # links = list(r.html.absolute_links)
 
-        images = r.html.find('img')
-        img_src = [img.attrs.get('src') for img in images if img.attrs.get('src')]
-        image = img_src[0] if img_src else ""
+        # images = r.html.find('img')
+        # img_src = [img.attrs.get('src') for img in images if img.attrs.get('src')]
+        # image = img_src[0] if img_src else ""
 
-        return url, clean_text, links, image
+        return text
     except Exception as e:
         print(f"Error crawling {url}: {e}")
 
@@ -32,13 +32,13 @@ if __name__ == "__main__":
     import asyncio
 
     async def main():
-        test_url = "https://rangdong.com.vn/den-ban-led-cam-ung-pr1716.html"
+        test_url = "https://www.thegioididong.com/dtdd/realme-14t-5g-8gb?utm_flashsale=1"
 
-        r = await crawl_webpage(test_url)
+        clean_text = await crawl_webpage(test_url)
 
-        if r:
+        if clean_text:
             # print(f"Page text length: {len(r.html.text)}")
-            # print(f"First 500 characters of text:\n{r.html.text[:500]}")
+            # print(f"First 500 characters of text:\n{clean_text}")
 
             # print(f"\nFound {len(r.html.absolute_links)} unique links:")
             # for link in list(r.html.absolute_links)[:5]:
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             # print(f"\nFound {len(images)} images:")
             # for img in images[:5]:
             #     print(f"  {img.attrs.get('src')}")
-            soup = BeautifulSoup(r.html.text, 'html.parser')
+            soup = BeautifulSoup(clean_text, 'html.parser')
             print(soup.get_text())
 
     asyncio.run(main())

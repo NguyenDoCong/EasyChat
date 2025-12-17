@@ -2,7 +2,7 @@
 
 
 
-Đèn LED chiếu sáng đường CSD12 100W
+Rạng Đông - Dẫn đầu Cung cấp Hệ sinh thái LED 4.0 
 
 
 
@@ -1152,23 +1152,21 @@ Close
 
 
 
-Trang chủ
-Danh mục
-Đèn LED
-Đèn đường LED
-Đèn đường thông thường
-Đèn LED chiếu sáng đường 100W
 
+×
 
 
 
 
+LED PRODUCTS
 
 
+VACUUM FLASK
 
 
 
 
+Close
 
 
 
@@ -1195,7 +1193,6 @@ Danh mục
 
 
 
- 
 
 
 
@@ -1218,94 +1215,57 @@ Danh mục
 
 
 
-Đèn LED chiếu sáng đường 100W
-Model: CSD12 100W
 
-Tìm sản phẩm tương tự
 
 
 
 
 
-Công suất:
- 100W
 
 
 
-Dải điện áp hoạt động:
- (100-277)V/(50-60)Hz
 
 
 
-Nhiệt độ màu:
- 4000K/5000K
 
 
 
-Quang thông:
- 15000 lm
 
 
 
-Cấp bảo vệ:
- IP66, IK08
 
 
 
-Tuổi thọ:
- 50.000 giờ (L70, B50)
 
 
 
-Kích thước (DxRxC):
-(560x228x85)mm
 
 
 
 
 
 
-Thay đổi 7 mức cường độ sáng theo thời gian mà không cần hệ thống điều khiển, giúp tiết kiệm điện vào khoảng thời gian ít phương tiện đi lại. Có thể đặt hàng thay đổi linh hoạt 7 mức cường độ sáng khác nhau.
-Kiểu dáng đẹp, logo Rạng Đông đúc nổi. Bộ vỏ nhôm đúc, tản nhiệt tốt.
-Module LED thiết kế sử dụng lense quang học phân bố chuẩn type II, đem lại phân bố ánh sáng đồng đều.
-Hiệu suất sáng cao, tiết kiệm điện.
-Tích hợp vị trí chờ lắp Nema Socket, dễ dàng nâng cấp hệ thống chiếu sáng đường phố thông minh.
-Bảo vệ chống bụi nước IP 66, chống va đập IK08.
-Dải điện áp hoạt động rộng (100-277)V.
-Chỉ tiêu chống xung sét cao, lên đến 10KV.
 
 
 
-Công suất
 
 
 
-60W
 
 
-70W
 
 
-80W
 
 
- 100W
 
 
-120W
 
 
 
 
-Giá bán lẻ đề xuất:                                  3.346.000 VNĐ
-                                
 
-1900 2098
 
-MUA HÀNG ONLINE
 
-MUA HÀNG Ở ĐÂU
-XEM TẤT CẢ SẢN PHẨM
 
 
 
@@ -1316,9 +1276,6 @@ XEM TẤT CẢ SẢN PHẨM
 
 
 
-Ưu điểm
-Thông số kỹ thuật
-Tài liệu
 
 
 
@@ -1337,11 +1294,8 @@ Tài liệu
 
 
 
-THIẾT KẾ TỐI ƯU, PHÙ HỢP ĐẶC ĐIỂM VÀ ĐIỀU KIỆN HOẠT ĐỘNG TẠI VIỆT NAM
 
-Đèn LED chiếu sáng đường CSD12 có thiết kế tối ưu với:Khả năng chịu xung sét lên đến 10kV, chỉ số chống va đập IK08, dải điện áp hoạt động rộng (100-277)V, tất cả đều đặc biệt phù hợp đặc điểm về lưới điện và điều kiện thời tiết nóng ẩm, mưa nhiều và điều kiện không khí của từng vùng miền tại Việt Nam. Đặc biệt tích hợp sẵn vị trí chờ lắp Nema Socket, dễ dàng nâng cấp hệ thống chiếu sáng đường phố thông minh.
 
-Xem thêm: Các bộ đèn chiếu sáng đường Nema Socket
 
 
 
@@ -1351,11 +1305,8 @@ Xem thêm: Các bộ đèn chiếu sáng đường Nema Socket
 
 
 
-CHẤT LƯỢNG ÁNH SÁNG CAO, GÓP PHẦN XÂY DỰNG ĐÔ THỊ VĂN MINH
 
-Đèn LED chiếu sáng đường CSD12 sử dụng Chip LED chất lượng cao, quang thông cao kết hợp lens quang học, tạo phân bố quang đồng đều, cùng khả năng dimming 7 mức công suất theo thời gian, giúp tiết kiệm điện vào khoảng thời gian ít phương tiện đi lại.
 
-Xem thêm: Giải pháp chiếu sáng đường phố thông minh
 
 
 
@@ -1365,11 +1316,8 @@ Xem thêm: Giải pháp chiếu sáng đường phố thông minh
 
 
 
-TIẾT KIỆM CHI PHÍ VẬN HÀNH, BẢO TRÌ
 
-Đèn chiếu sáng đường CSD12 được thiết kế với hiệu suất sáng cao 150 lm/W, tăng tỉ lệ chuyển đổi từ năng lượng sang ánh sáng hữu ích, giúp tiết kiệm năng lượng tối đa. Tuổi thọ cao 50.000 giờ, giảm chi phí bảo trì, thay thế.
 
-Xem thêm: Đèn chiếu sáng đường sử dụng năng lượng mặt trời.
 
 
 
@@ -1379,9 +1327,7 @@ Xem thêm: Đèn chiếu sáng đường sử dụng năng lượng mặt trời
 
 
 
-ỨNG DỤNG ĐA DẠNG
 
-Đèn LED chiếu sáng đường CSD12 với dải công suất từ 60w - 120w, có thể lắp đặt chiếu sáng nhiều loại công trình khác nhau như: Đường làng, ngõ xóm; cảnh quan sân vườn; công trình công cộng; chiếu sáng đường liên huyện, liên tỉnh….
 
 
 
@@ -1393,34 +1339,39 @@ Xem thêm: Đèn chiếu sáng đường sử dụng năng lượng mặt trời
 
 
 
+CÁC LĨNH VỰC NỔI BẬT
+    
 
-Ưu điểm sản phẩm
+        Rạng Đông tiên phong trong lĩnh vực chiếu sáng 4.0, hướng tới sức khỏe, hạnh phúc con người.
+        Chúng tôi liên tục nghiên cứu và phát triển giải pháp chiếu sáng cùng dịch vụ đồng bộ trọn gói trong các lĩnh vực
+    
 
 
 
-NGHIÊN CỨU, THIẾT KẾ, SẢN XUẤT, KIỂM SOÁT CHẤT LƯỢNG NGHIÊM NGẶT
-Đèn chiếu sáng đường CSD12 được nghiên cứu, thiết kế sử dụng các phần mềm: phần mềm mô phỏng nhiệt thiết kế tối ưu cấu trúc tản nhiệt của bộ vỏ ở các chế độ làm việc, môi trường khác nhau; phần mềm mô phỏng quang, cho chất lượng ánh sáng đồng đều và kiểm soát chất lượng nghiêm ngặt theo quá trình, 100% sản phẩm đạt độ tin cậy cao.
 
 
 
 
+                            INDOOR
+                        
 
-ĐÁP ỨNG CÁC TIÊU CHUẨN
-Sản phẩm đáp ứng các tiêu chuẩn về tính năng và an toàn của đèn điện, cụ thể là đèn chiếu sáng cho đường phố, đảm bảo an toàn cho người và phương tiện lưu thông trên đường.
+Tiên phong lĩnh vực chiếu
+sáng 4.0 indoor, hướng tới sức khỏe, hạnh
+phúc con người
 
 
 
 
 
 
-MAY ĐO THEO YÊU CẦU
-Sản phẩm được sản xuất và công bố thông số đúng theo bao bì. Tùy tính chất, yêu của từng công trình, phù hợp với từng điều kiện thời tiết, môi trường, Quý khách có thể đặt hàng tăng chỉ tiêu chống xung sét hoặc đặt hàng thay đổi hiệu suất hoặc nâng hệ số công suất.
 
 
 
+                            OUTDOOR
+                        
 
+Cung cấp dịch vụ trọn gói chiếu sáng đường phố thông minh, chiếu sáng cảnh quan IoT
 
-ĐA DẠNG VỀ CÔNG SUẤT
 
 
 
@@ -1429,7 +1380,13 @@ Sản phẩm được sản xuất và công bố thông số đúng theo bao b�
 
 
 
+                            SMART FARM
+                        
 
+Tích hợp công nghệ IoT &
+nguồn sáng tạo ra bước
+sóng phù hợp chu kì sinh
+trưởng và phát triển của
 
 
 
@@ -1439,7 +1396,10 @@ Sản phẩm được sản xuất và công bố thông số đúng theo bao b�
 
 
 
+                            NĂNG LƯỢNG TÁI TẠO
+                        
 
+Chúng tôi phát triển bằng sự tử tế với những sản phẩm giải pháp đi cùng xu hướng chuyển đổi xanh
 
 
 
@@ -1449,136 +1409,98 @@ Sản phẩm được sản xuất và công bố thông số đúng theo bao b�
 
 
 
+DÀNH CHO KHÁCH HÀNG/ ĐỐI TÁC
+    
 
+        Rạng Đông cung cấp giải pháp tối ưu, dịch vụ trọn vẹn nhất cho khách hàng và đối tác
+    
 
 
 
 
 
 
+KHÁCH HÀNG ĐẠI CHÚNG
 
 
 
 
 
+KHÁCH HÀNG CHUYÊN DỤNG - ĐỐI TÁC
 
 
 
 
 
 
-Tần số
-50/60Hz
 
 
-Điện áp nguồn
-220 Vac
 
 
-Dải điện áp hoạt động
-(100-277)V
 
 
-Dải điện áp hoạt động lớn nhất, ngắn hạn <02 giờ
-(90-305) V
+Tìm hiểu về
+                    SMARTHOME Rạng Đông
+                
+XEM NGAY
 
 
-Công suất
-100W
 
 
-Công suất tối đa
-110W
 
 
-Dòng điện đầu vào lớn nhất
-2A
 
 
-Hệ số công suất
-0,95
+NHÀ MÁY THÔNG MINHMAKE IN VIETNAM
+    
 
+Trải nghiệm nhà máy thông minh với dữ liệu được kết nối và xử lý tự động
 
-Quang thông
-15000 lm
 
 
-Quang thông tối thiểu
-13500 lm
 
 
-Hiệu suất
-150 lm/W
 
 
-Tuổi thọ
-50000 (L70/B50) h
 
 
-Nhiệt độ màu tương quan
-4000K/5000K
 
 
-Mã trắc quang
-750/777 (5000K)
-			740/777 (4000K)
 
 
-Chỉ số thể hiện màu
-≥70
 
 
-Dải nhiệt độ hoạt động
-(-20)-(50)°C
 
+GIỮ NHIỆT YÊU THƯƠNG - SINCE 1961
+    
+GIỮ NHIỆT YÊU THƯƠNG  SINCE 1961
+    
 
-Cấp bảo vệ bằng vỏ ngoài
-IP 66
+Phích nước Rạng Đông - Thương hiệu quốc dân, sử dụng thủy tinh không chì, công nghệ đốt điện hoàn toàn. An toàn sức khỏe và thân thiện môi trường
 
 
-Bảo vệ va đập
-IK 08
 
 
-Khả năng chịu xung sét (L-N)
-10 kV
 
 
-Cấp cách điện
-Class 1
 
 
-Điện trở cách điện
-4ΜΩ
 
 
-Độ bền điện
-1.5 kV/1'
 
 
-Tiêu chuẩn áp dụng
-TCVN 10885-2-1/IEC 62722-2-1
-			TCVN 7722-2-3/IEC 60598-2-3
 
 
-Chiều dài
-560±5 mm
 
 
-Chiều rộng
-228±5 mm
 
 
-Chiều cao
-85±10 mm
 
 
-Đường kính lỗ bắt đèn vào cột đèn
-Ф64 mm
+                NHÀ CUNG CẤP CHÍNH
+            
 
 
-Khối lượng
-3.4±0,5 kgs
 
 
 
@@ -1590,10 +1512,6 @@ Khối lượng
 
 
 
-Bảng giá sản phẩm LED
-Catalogue sản phẩm LED
-Dữ liệu IES
-Tiêu chuẩn, quy chuẩn chiếu sáng
 
 
 
@@ -1602,7 +1520,6 @@ Tiêu chuẩn, quy chuẩn chiếu sáng
 
 
 
-Ứng dụng robot và Ai vào sản xuất
 
 
 
@@ -1611,108 +1528,13 @@ Tiêu chuẩn, quy chuẩn chiếu sáng
 
 
 
-Sản phẩm tương tự
 
 
 
 
 
-
-
-
-
-
-Đèn LED chiếu sáng đường (không DIM) 150W
-Model: CSD12 150W
-
-
-
-
-
-
-
-Đèn LED chiếu sáng đường (không DIM) 120W
-Model: CSD12 120W
-
-
-
-
-
-
-
-Đèn LED chiếu sáng đường (không DIM) 100W
-Model: CSD12 100W
-
-
-
-
-
-
-
-Đèn LED chiếu sáng đường (không DIM) 80W
-Model: CSD12 80W
-
-
-
-
-
-
-
-Đèn LED chiếu sáng đường (không DIM) 70W
-Model: CSD12 70W
-
-
-
-
-
-
-
-Đèn LED chiếu sáng đường
-Model: CSD12 Không DIM
-
-
-
-
-
-
-
-Đèn chiếu sáng đường 250W
-Model: CSD10 250W Plus
-
-
-
-
-
-
-
-Đèn chiếu sáng đường 220W
-Model: CSD10 220W Plus
-
-
-
-
-
-
-
-Đèn chiếu sáng đường 200W
-Model: CSD10 200W Plus
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                CHỨNG NHẬN CỦA CHÚNG TÔI
+            
 
 
 
