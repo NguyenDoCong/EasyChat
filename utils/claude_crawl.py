@@ -168,7 +168,7 @@ class UniversalProductScraper:
         # 5. Nối lại thành đoạn văn bản hoàn chỉnh
         return ". ".join(unique_segments) + "."
 
-    def scrape(self, url: str, method: str = "hybrid") -> Dict[str, Any]:
+    def scrape(self, url: str, method: str = "auto") -> Dict[str, Any]:
         """
         Scrape thông tin sản phẩm từ URL
 
@@ -206,6 +206,8 @@ class UniversalProductScraper:
             result = self._extract_from_html(soup, url)
             # print("result html:", result)
 
+        print("raw result:", result)
+
         # Post-processing
         result = self._clean_result(result)
 
@@ -218,8 +220,8 @@ class UniversalProductScraper:
         if result:
             try:
             
-                match = re.search(check_pattern, str(result["price"]), re.IGNORECASE)
-                if match:
+                # match = re.search(check_pattern, str(result["price"]), re.IGNORECASE)
+                # if match:
 
                         specs = self._clean_redundant_text(result["description"])
 
@@ -239,6 +241,7 @@ class UniversalProductScraper:
 
         # result['url'] = url
         # result['scrape_method'] = method
+        print("final_result:", final_result)
 
         return final_result
 
@@ -400,16 +403,16 @@ class UniversalProductScraper:
                         # print("elements images:", elements)
                         for img in elements:
                             # if (img.get("src") or (img.get("data-src")) and (img.get("alt") and(img.get("alt")==result["name"]))):
-                            if (img.get("alt")==result["name"]):
-                                print(img.get("alt") )
-                                print("name:", result["name"])
+                            if (str(img.get("alt")) in result["name"]):
+                                # print(img.get("alt") )
+                                # print("name:", result["name"])
                                 result[field] = [
                                     img.get("src") or img.get("data-src")
                                 ]
                                 break                            
-                        print("result images:", result[field])
+                        # print("result images:", result[field])
                     else:
-                        if field == "description" and result["description"]:
+                        if field == "description":
                         
                             max=""
                             for element in elements:
@@ -433,7 +436,7 @@ class UniversalProductScraper:
         og_mapping = {
             "og:title": "name",
             "og:description": "description",
-            "og:image": "image",
+            "og:image": "images",
             "og:price:amount": "price",
             "og:price:currency": "currency",
         }
@@ -441,7 +444,7 @@ class UniversalProductScraper:
         for og_prop, field in og_mapping.items():
             tag = soup.find("meta", property=og_prop)
             if tag and tag.get("content"):
-                if field == "image":
+                if field == "images":
                     result.setdefault("images", []).append(tag["content"])
                 else:
                     result[field] = tag["content"]
@@ -450,14 +453,20 @@ class UniversalProductScraper:
         twitter_mapping = {
             "twitter:title": "name",
             "twitter:description": "description",
-            "twitter:image": "image",
+            "twitter:image": "images",
         }
 
         for tw_name, field in twitter_mapping.items():
-            if field not in result:
+            if field not in result or field == "images":
                 tag = soup.find("meta", attrs={"name": tw_name})
                 if tag and tag.get("content"):
-                    result[field] = tag["content"]
+                    # print("tag content:", tag["content"], tag.get("content"))
+                    # if field == "images":
+                        print("tag twitter image:", result[field], tag["content"])
+                        result[field].append(tag["content"])
+        print("result images twitter:", result["images"])
+                    # else:
+                    #     result[field] = tag["content"]
 
         return result
 
@@ -488,10 +497,14 @@ class UniversalProductScraper:
                     value = element.get_text(strip=True)
 
                 if value:
-                    if field == "image":
-                        result.setdefault("images", []).append(value)
+                    if field == "images":
+                        result[field].append(value)
                     else:
                         result[field] = value
+        try:
+            print("result images microdata:", result["images"])
+        except Exception:
+            print("no images microdata")
 
         return result
 
@@ -567,7 +580,7 @@ Chỉ trả về JSON, không giải thích.
         # 2. HTML structure
         html_data = self._extract_from_html(soup, "")
         for key, value in html_data.items():
-            if key not in result or not result[key] or key == "price":
+            if key not in result or not result[key] or key == "price" or key == "images":
                 result[key] = value
 
         # # 3. LLM cho các trường còn thiếu
@@ -606,6 +619,7 @@ Chỉ trả về JSON, không giải thích.
 
                 # decode HTML entities và strip tags
                 decoded = html.unescape(value)
+                print("decoded:", decoded)
                 soup = BeautifulSoup(decoded, "html.parser")
                 text = soup.get_text(separator=" ").strip()
 
@@ -668,8 +682,8 @@ if __name__ == "__main__":
 
         # Example 1: Scrape một sản phẩm
         # json ld - price 0: https://rangdong.com.vn/den-pha-led-100w-2019-pr1215.html
-        url = "https://rangdong.com.vn/den-duong-led-100w-da-pr1348.html"
-        result = scraper.scrape(url, method="hybrid")  # 'auto', 'html', 'json_ld', 'llm', 'hybrid'
+        url = "https://rangdong.com.vn/den-led-am-tran-downlight-100-9w-pr2414.html"
+        result = scraper.scrape(url, method="auto")  # 'auto', 'html', 'json_ld', 'llm', 'hybrid'
         print("\n📊 KẾT QUẢ:")
         print(json.dumps(result, indent=2, ensure_ascii=False))
 
