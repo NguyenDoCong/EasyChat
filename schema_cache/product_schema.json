@@ -1,0 +1,11 @@
+{
+  "name": "Product Cards",
+  "baseSelector": "//div[contains(@class, 'product-card')]",
+  "fields": [
+    {
+      "name": "price",
+      "selector": ".//span[contains(@class, 'product-price')]",
+      "type": "text"
+    }
+  ]
+}

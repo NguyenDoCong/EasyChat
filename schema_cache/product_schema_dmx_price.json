@@ -1,0 +1,16 @@
+{
+  "name": "Product Price",
+  "baseSelector": "//div[@class='bs_price']",
+  "fields": [
+    {
+      "name": "price",
+      "selector": ".//strong",
+      "type": "text"
+    },
+    {
+      "name": "original_price",
+      "selector": ".//em",
+      "type": "text"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Product Price Extraction",
+  "baseSelector": "//section[@class='pd-info']",
+  "fields": [
+    {
+      "name": "price",
+      "selector": ".//div[@class='pd-info__price']/strong[@class='fw-700']",
+      "type": "text"
+    }
+  ]
+}

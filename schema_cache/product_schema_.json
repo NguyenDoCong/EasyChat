@@ -1,0 +1,27 @@
+{
+  "name": "Product Detail Page",
+  "baseSelector": "//section[@class='detail detailv2']",
+  "fields": [
+    {
+      "name": "product_name",
+      "selector": ".//div[@class='product-name']/h1",
+      "type": "text"
+    },
+    {
+      "name": "current_price",
+      "selector": ".//div[@class='bs_price']/strong",
+      "type": "text"
+    },
+    {
+      "name": "image_url",
+      "selector": ".//aside[@id='slider-detail']//div[@class='item-img']",
+      "type": "attribute",
+      "attribute": "data-thumb"
+    },
+    {
+      "name": "description",
+      "selector": ".//div[@id='tab-2']/div[@class='text-detail ']",
+      "type": "text"
+    }
+  ]
+}

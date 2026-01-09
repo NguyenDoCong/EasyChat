@@ -1,0 +1,76 @@
+{
+  "name": "Product Detail",
+  "baseSelector": "//main[@id='product-detail-page']",
+  "fields": [
+    {
+      "name": "product_name",
+      "selector": ".//h1[@class='mb-1 text-xl leading-[24px] font-semibold text-gray-700 uppercase font-display']",
+      "type": "text"
+    },
+    {
+      "name": "model",
+      "selector": ".//div[contains(text(), 'Model:') and @class='text-sm font-medium text-strong-blue-500 lg:text-base mb-[2px]']",
+      "type": "text"
+    },
+    {
+      "name": "sku",
+      "selector": ".//div[@class='text-sm font-medium text-strong-blue-500 lg:text-base'][contains(text(), 'LED')]",
+      "type": "text"
+    },
+    {
+      "name": "current_price",
+      "selector": ".//strong[@class='mr-4 font-bold text-red-400 h5']",
+      "type": "text"
+    },
+    {
+      "name": "old_price",
+      "selector": ".//span[@class='mr-4 text-gray-400 line-through body-text']",
+      "type": "text"
+    },
+    {
+      "name": "discount_percentage",
+      "selector": ".//strong[@class='text-white bg-green-blue-gradient rounded px-1.5 lg:px-[7px] py-1 lg:py-[5px] lg:ml-auto description']",
+      "type": "text"
+    },
+    {
+      "name": "image_url",
+      "selector": ".//img[@class='object-cover w-full h-full image-master']",
+      "type": "attribute",
+      "attribute": "src"
+    },
+    {
+      "name": "short_description",
+      "selector": ".//div[@class='mb-2 font-medium text-gray-800 caption']",
+      "type": "text"
+    },
+    {
+      "name": "wattage_options",
+      "selector": ".//div[@class='mb-4']/div[@class='grid grid-cols-3 gap-1']",
+      "type": "list",
+      "fields": [
+        {
+          "name": "option_value",
+          "selector": ".//a/span[@class='text-center caption']",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "border_color_options",
+      "selector": ".//div[contains(@class, 'flex flex-wrap')][.//span[text()='Vi\u1ec1n V\u00e0ng ' or text()='Vi\u1ec1n B\u1ea1c ']]",
+      "type": "list",
+      "fields": [
+        {
+          "name": "color_value",
+          "selector": ".//span[@class='caption']",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "description",
+      "selector": ".//div[@class='prose markup-custom list-striped']",
+      "type": "text"
+    }
+  ]
+}

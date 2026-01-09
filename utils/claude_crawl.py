@@ -187,6 +187,8 @@ class UniversalProductScraper:
 
         # Parse HTML
         soup = BeautifulSoup(html_content, "html.parser")
+        with open("demofile.txt", "w") as f:
+            f.write(str(soup))
 
         # Xác định phương pháp scrape
         if method == "auto":
@@ -367,8 +369,8 @@ class UniversalProductScraper:
         # Extract bằng regex patterns
         html_text = soup.get_text()
         html_text = html.unescape(html_text)
-        with open("demofile.txt", "w") as f:
-            f.write(html_text)
+        # with open("demofile.txt", "w") as f:
+        #     f.write(html_text)
         for field, patterns in self.universal_patterns.items():
             for pattern in patterns:
                 match = re.search(pattern, html_text, re.IGNORECASE)
@@ -682,7 +684,7 @@ if __name__ == "__main__":
 
         # Example 1: Scrape một sản phẩm
         # json ld - price 0: https://rangdong.com.vn/den-pha-led-100w-2019-pr1215.html
-        url = "https://rangdong.com.vn/den-led-am-tran-downlight-100-9w-pr2414.html"
+        url = "https://rangdong.com.vn/vot-bat-muoi-vbm-rd-03-pr2398.html"
         result = scraper.scrape(url, method="auto")  # 'auto', 'html', 'json_ld', 'llm', 'hybrid'
         print("\n📊 KẾT QUẢ:")
         print(json.dumps(result, indent=2, ensure_ascii=False))
