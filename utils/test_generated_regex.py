@@ -68,13 +68,14 @@ async def extract_with_generated_pattern():
             for item in data[:100]:
                 print(f"Extracted: {item['value']}")
             print(f"Total matches: {len(data)}")
+            print(f"URL: {result.url}")
             print(f"Title: {result.metadata["title"]}")
             import ast
             res = ast.literal_eval(result.extracted_content)
             print(f"Description: {result.metadata["description"]}")
             print(f"Image: {result.metadata["og:image"]}")
             with open("result.txt", "w") as f:
-                f.write(str(result.metadata))            
+                f.write(str(result))            
 
 
 asyncio.run(extract_with_generated_pattern())

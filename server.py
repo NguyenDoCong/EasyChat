@@ -38,6 +38,8 @@ from concurrent.futures import ThreadPoolExecutor
 from test_extract_info import finalize_name
 from utils.claude_crawl import UniversalProductScraper
 import time
+from utils.test_generated_schema import extract_with_generated_schema, create_xpath_strategy
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -166,11 +168,15 @@ async def crawl_url(data: Data):
 
         for result in results:
 
+            print("link:", result['href'])
+
             # document = Document(page_content=result['title'], metadata = {"url": result['href']})
 
             # documents.append(document)
+            # if result['href'] not in urls:
 
             urls.append(result['href'])
+
 
         # await create_store(documents)
 
@@ -206,25 +212,52 @@ async def crawl_url(data: Data):
         # with ThreadPoolExecutor(max_workers=4) as executor:
         #     results = list(executor.map(crawl, docs[:4]))
 
-        scraper = UniversalProductScraper(
-            use_llm=False,  # Set True nếu muốn dùng LLM
-            llm_api_key="your-api-key-here"  # Thêm API key nếu dùng LLM
-        )
-
-        # products = await asyncio.gather(
-        #     *[scraper.scrape(r) for r in results if r]
+        # scraper = UniversalProductScraper(
+        #     use_llm=False,  # Set True nếu muốn dùng LLM
+        #     llm_api_key="your-api-key-here"  # Thêm API key nếu dùng LLM
         # )
 
+        # products = await asyncio.gather(
+        #     *[extract_with_generated_schema(r, data.root) for r in urls if r]
+        # )
+
+        tmp=0
+        
+        try:
+            for i, url in enumerate(urls):
+                x=requests.get(url)
+                if x.status_code == 200:
+                    tmp=i
+                    break
+        except Exception as e:
+            print("Error requesting URL:", str(e))
+
+        await create_xpath_strategy(urls[tmp], data.root)
+
+        products = await extract_with_generated_schema(urls[:10], data.root)
+
+        print(f"Number of products: {len(products)}")
 
         # for doc in docs[:5]:
         #     urls.append(doc.metadata["url"])
 
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            products = list(executor.map(scraper.scrape, urls))
+        # with ThreadPoolExecutor(max_workers=4) as executor:
+        #     products = list(executor.map(scraper.scrape, urls))
 
-        final_products = list((product for product in products if product))
+        # final_products = list((product for product in products if product))
 
-        print(len(final_products))
+        # try:
+
+        #     unique = list({item["link"]: item for item in final_products}.values())
+        # except Exception as e:
+        #     print("Error deduplicating products:", str(e))
+        #     unique = final_products
+
+
+        # print("number of final_products:", len(unique))
+
+        # for item in unique:
+        #     print("product:", item)
 
         # products = []
 
@@ -246,7 +279,7 @@ async def crawl_url(data: Data):
         execution_time = end_time - start_time
         print(f"Thời gian thực hiện: {execution_time} giây")
 
-        return {"status": "success", "type": "products", "data": final_products}
+        return {"status": "success", "type": "products", "data": products}
         
 
     except Exception as e:

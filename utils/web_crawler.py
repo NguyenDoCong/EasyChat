@@ -12,7 +12,7 @@ async def crawl_webpage(url):
     # Configure the crawler to wait for network idle, which is better for
     # dynamic pages that load content with JavaScript.
     config = CrawlerRunConfig(
-        # wait_until="networkidle"
+        wait_until="domcontentloaded"
     )
     
     async with AsyncWebCrawler() as crawler:

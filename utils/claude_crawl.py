@@ -211,7 +211,7 @@ class UniversalProductScraper:
         print("raw result:", result)
 
         # Post-processing
-        result = self._clean_result(result)
+        cleaned_result = self._clean_result(result)
 
         final_result = False
 
@@ -219,25 +219,26 @@ class UniversalProductScraper:
         # result["currency"] = ""
         check_pattern = r"(\d{1,3}(?:\.\d{3})+)"
 
-        if result:
+        if cleaned_result:
             try:
             
                 # match = re.search(check_pattern, str(result["price"]), re.IGNORECASE)
                 # if match:
 
-                        specs = self._clean_redundant_text(result["description"])
+                        description = self._clean_redundant_text(cleaned_result["description"])
 
                         final_result = {
-                            "name": result["name"],
-                            "price": str(result["price"]),
-                            "specs": specs,
+                            "name": cleaned_result["name"],
+                            "price": str(cleaned_result["price"]),
+                            "specs": description,
                             "link": url,
-                            "image": result["images"][0],
+                            "image": cleaned_result["images"][0],
                         }
                         # return final_result
             except Exception as e:
                 print("lỗi xuất thông tin", e, url)
-                final_result = False
+                
+                final_result = result
             # else:
             #     final_result = False
 
@@ -400,31 +401,34 @@ class UniversalProductScraper:
                 # print("selector:", selector)
                 elements = soup.select(selector)
                 if elements:
-                    # print(f"elements {field}:", elements)
-                    if field == "images" and result["name"]:
-                        # print("elements images:", elements)
-                        for img in elements:
-                            # if (img.get("src") or (img.get("data-src")) and (img.get("alt") and(img.get("alt")==result["name"]))):
-                            if (str(img.get("alt")) in result["name"]):
-                                # print(img.get("alt") )
-                                # print("name:", result["name"])
-                                result[field] = [
-                                    img.get("src") or img.get("data-src")
-                                ]
-                                break                            
-                        # print("result images:", result[field])
-                    else:
-                        if field == "description":
-                        
-                            max=""
-                            for element in elements:
-                                if len(element.get_text(strip=True))>len(max):
-                                    max=element.get_text(strip=True)
-                                    # print("max:", max)
-                            result[field] = str(max)
-                        # else:
-                        #     result[field] = elements[0].get_text(strip=True)
-                        #     break                                        
+                    # print(f"elements {field}:", elements)\
+                    try:
+                        if field == "images" and result["name"]:
+                            # print("elements images:", elements)
+                            for img in elements:
+                                # if (img.get("src") or (img.get("data-src")) and (img.get("alt") and(img.get("alt")==result["name"]))):
+                                if (str(img.get("alt")) in result["name"]):
+                                    # print(img.get("alt") )
+                                    # print("name:", result["name"])
+                                    result[field] = [
+                                        img.get("src") or img.get("data-src")
+                                    ]
+                                    break                            
+                            # print("result images:", result[field])
+                        else:
+                            if field == "description":
+                            
+                                max=""
+                                for element in elements:
+                                    if len(element.get_text(strip=True))>len(max):
+                                        max=element.get_text(strip=True)
+                                        # print("max:", max)
+                                result[field] = str(max)
+                            # else:
+                            #     result[field] = elements[0].get_text(strip=True)
+                            #     break      
+                    except Exception as e:
+                        print(f"❌ Error extracting with selector {selector}: {e}")
 
         return result
 
@@ -466,7 +470,7 @@ class UniversalProductScraper:
                     # if field == "images":
                         print("tag twitter image:", result[field], tag["content"])
                         result[field].append(tag["content"])
-        print("result images twitter:", result["images"])
+                        print("result images twitter:", result["images"])
                     # else:
                     #     result[field] = tag["content"]
 

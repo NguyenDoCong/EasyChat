@@ -19,7 +19,7 @@
 
         #chat-widget-button {
             position: fixed;
-            top: 24px;
+            bottom: 240px;
             left: 24px;
             width: 60px;
             height: 60px;
@@ -731,7 +731,7 @@
                     <tr>
                         <td><a href="${this.escape(p.link)}" target="_blank">${this.escape(p.name)}</a></td>
                         <td>${this.escape(p.price)}</td>
-                        <td>${this.escape(p.specs)}</td>
+                        <td>${this.escape(p.description)}</td>
                     </tr>
                 `;
             });
@@ -746,7 +746,7 @@
                         </a>
                         <div class="product-content">
                             <a href="${this.escape(p.link)}" target="_blank" class="product-name">${this.escape(p.name)}</a>
-                            <div class="product-specs">${this.escape(p.specs)}</div>
+                            <div class="product-specs">${this.escape(p.description)}</div>
                             <div class="price-wrapper">
                                 <div class="price">${this.escape(p.price)}</div>
                             </div>
@@ -971,16 +971,16 @@
             // Biến để track trạng thái đã load
             let isLoaded = false;
 
-            // Xử lý hover - CHỈ GỌI API KHI HOVER
-            container.addEventListener('mouseenter', () => {
-                overlay.classList.add('show');
+            // // Xử lý hover - CHỈ GỌI API KHI HOVER
+            // container.addEventListener('mouseenter', () => {
+            //     overlay.classList.add('show');
 
-                // Chỉ gọi API lần đầu tiên hover
-                if (!isLoaded) {
-                    isLoaded = true;
-                    fetchOverlayData(productUrl, overlay);
-                }
-            });
+            //     // Chỉ gọi API lần đầu tiên hover
+            //     if (!isLoaded) {
+            //         isLoaded = true;
+            //         fetchOverlayData(productUrl, overlay);
+            //     }
+            // });
 
             container.addEventListener('mouseleave', () => {
                 overlay.classList.remove('show');

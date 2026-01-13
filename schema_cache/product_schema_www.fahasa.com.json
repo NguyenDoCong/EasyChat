@@ -1,0 +1,54 @@
+{
+  "name": "Fahasa Product Detail",
+  "baseSelector": "//div[@id='product_view_kasitoo']",
+  "fields": [
+    {
+      "name": "title",
+      "selector": ".//h1[@class='fhs_name_product_desktop']",
+      "type": "text"
+    },
+    {
+      "name": "price",
+      "selector": ".//p[@class='special-price']//span[@class='price']",
+      "type": "text"
+    },
+    {
+      "name": "image_url",
+      "selector": ".//img[@id='image']",
+      "type": "attribute",
+      "attribute": "data-src"
+    },
+    {
+      "name": "description",
+      "selector": ".//div[@id='desc_content']",
+      "type": "text"
+    },
+    {
+      "name": "author",
+      "selector": ".//div[@class='product-view-sa-author']",
+      "type": "text"
+    },
+    {
+      "name": "supplier",
+      "selector": ".//div[@class='product-view-sa-supplier']",
+      "type": "text"
+    },
+    {
+      "name": "specifications",
+      "selector": ".//table[@class='data-table table-additional']//tr",
+      "type": "list",
+      "fields": [
+        {
+          "name": "label",
+          "selector": ".//th",
+          "type": "text"
+        },
+        {
+          "name": "value",
+          "selector": ".//td",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}

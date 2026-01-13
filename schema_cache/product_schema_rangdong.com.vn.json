@@ -1,0 +1,27 @@
+{
+  "name": "Product Detail Schema",
+  "baseSelector": "//section[@class='section-2' and .//h1[@class='pd-info__title']]",
+  "fields": [
+    {
+      "name": "title",
+      "selector": ".//h1[@class='pd-info__title']",
+      "type": "text"
+    },
+    {
+      "name": "price",
+      "selector": ".//div[@class='pd-info__price']/strong[@class='fw-700']",
+      "type": "text"
+    },
+    {
+      "name": "image_url",
+      "selector": ".//div[contains(@class, 'preview-slider__frame')]",
+      "type": "attribute",
+      "attribute": "data-url"
+    },
+    {
+      "name": "description",
+      "selector": ".//div[@class='pd-info__content js-remove-div-tags']",
+      "type": "text"
+    }
+  ]
+}

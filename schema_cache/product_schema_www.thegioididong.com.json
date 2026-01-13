@@ -1,0 +1,27 @@
+{
+  "name": "MSI Laptop Product Listing",
+  "baseSelector": "//ul[@class='listproduct']/li[contains(@class, 'item')]",
+  "fields": [
+    {
+      "name": "title",
+      "selector": ".//h3",
+      "type": "text"
+    },
+    {
+      "name": "price",
+      "selector": ".//strong[@class='price']",
+      "type": "text"
+    },
+    {
+      "name": "image_url",
+      "selector": ".//div[contains(@class, 'item-img')]/img",
+      "type": "attribute",
+      "attribute": "data-src"
+    },
+    {
+      "name": "description",
+      "selector": ".//div[@class='utility']",
+      "type": "text"
+    }
+  ]
+}
