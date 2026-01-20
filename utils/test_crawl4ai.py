@@ -12,9 +12,9 @@ from crawl4ai import (
 )
 from crawl4ai import LLMExtractionStrategy
 from dotenv import load_dotenv
+from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
 
 load_dotenv()
-
 
 class Product(BaseModel):
     name: str
@@ -42,8 +42,17 @@ async def main():
 
     # 2. Build the crawler config
     crawl_config = CrawlerRunConfig(
-        extraction_strategy=llm_strategy, cache_mode=CacheMode.BYPASS
+        # extraction_strategy=llm_strategy, 
+        cache_mode=CacheMode.BYPASS
     )
+
+    config = CrawlerRunConfig(
+        markdown_generator=DefaultMarkdownGenerator(
+            options={"citations": True, "body_width": 80}  # e.g. pass html2text style options
+        )
+    )
+
+    
 
     # 3. Create a browser config if needed
     browser_cfg = BrowserConfig(headless=True)
@@ -51,17 +60,24 @@ async def main():
     async with AsyncWebCrawler(config=browser_cfg) as crawler:
         # 4. Let's say we want to crawl a single page
         result = await crawler.arun(
-            url="https://rangdongstore.vn/den-led-downlight-doi-mau-at56-9010w1-p-241206004294",
-            config=crawl_config,
+            url="https://www.google.com/search?q=vscode+debugger+python+example&sca_esv=540cd09fb70162eb&ei=KSVvaY7KFtj21e8P4qPWmQo&oq=vscode+debugger+py+example&gs_lp=Egxnd3Mtd2l6LXNlcnAiGnZzY29kZSBkZWJ1Z2dlciBweSBleGFtcGxlKgIIADIIECEYoAEYwwQyCBAhGKABGMMEMggQIRigARjDBDIIECEYoAEYwwRI9x5QwQ5Y4BRwAngBkAEAmAFpoAGPAqoBAzIuMbgBA8gBAPgBAZgCBaACnALCAgoQABhHGNYEGLADwgIGEAAYBxgewgIEEAAYHsICCxAAGIAEGIoFGIYDwgIFEAAY7wXCAggQABiABBiiBJgDAIgGAZAGCJIHAzQuMaAHhw6yBwMyLjG4B5cCwgcDMC41yAcHgAgB&sclient=gws-wiz-serp",
+            # config=config,
         )
+
+        md_res = result.markdown  # or eventually 'result.markdown'    
 
         if result.success:
             # 5. The extracted content is presumably JSON
-            data = json.loads(result.extracted_content)
-            print("Extracted items:", data)
+            # data = json.loads(result)
+            print("Extracted items:", result)
+            print(md_res.raw_markdown[:500])
+            print(md_res.markdown_with_citations)
+            print(md_res.references_markdown)
+            with open("test_crawl4ai.html", "w", encoding="utf-8") as f:
+                f.write(str(result))
 
-            # 6. Show usage stats
-            llm_strategy.show_usage()  # prints token usage
+            # # 6. Show usage stats
+            # llm_strategy.show_usage()  # prints token usage
         else:
             print("Error:", result.error_message)
 

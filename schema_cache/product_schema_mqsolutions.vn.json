@@ -1,0 +1,27 @@
+{
+  "name": "Product Information",
+  "baseSelector": "//article[contains(@class, 'blog-post')]",
+  "fields": [
+    {
+      "name": "title",
+      "selector": ".//h3[@class='entry-title']",
+      "type": "text"
+    },
+    {
+      "name": "price",
+      "selector": "",
+      "type": "text"
+    },
+    {
+      "name": "image_url",
+      "selector": ".//div[@class='entry-media']//img",
+      "type": "attribute",
+      "attribute": "data-src"
+    },
+    {
+      "name": "description",
+      "selector": ".//div[@class='entry-summary']",
+      "type": "text"
+    }
+  ]
+}

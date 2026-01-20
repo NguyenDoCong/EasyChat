@@ -151,140 +151,201 @@ class Data(BaseModel):
 class Answer(BaseModel):
     bool_value: bool
 
-@app.post("/crawl")
-async def crawl_url(data: Data):
-    start_time = time.perf_counter()
-    logger.info(f"Received crawl request {data.message} for URL: {data.url} from {data.root}")
-    print(f"Received crawl request {data.message} for URL: {data.url} from {data.root}")
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
 
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)    
+
+manager = ConnectionManager()
+
+@app.websocket("/ws/")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
     try:
-        results = DDGS().text(
-            f"{data.message} site:{data.root}", max_results=20
-        )
+        while True:
+            data = await websocket.receive_text()
+            print("Received data via WebSocket:", data)
+            
+            # Parse JSON từ frontend
+            payload = json.loads(data)
+            search_query = payload.get("message", "")
+            root_url = payload.get("root", "https://www.thegioididong.com")
+            
+            start_time = time.perf_counter()
+            logger.info(f"Received crawl request: {search_query} for site: {root_url}")
+            print(f"Received crawl request: {search_query} for site: {root_url}")
 
-        # selected_urls = []
+            try:
+                package = {"status": "success", "message": "Searching for products..."}
+                await websocket.send_json(package)
+                print("Message sent: Searching for products...")                
+                
+                results = DDGS().text(
+                    f"{search_query} site:{root_url}", max_results=20
+                )
+                
+                # selected_urls = []
 
-        urls = []     
+                urls = []     
 
-        for result in results:
+                for result in results:
 
-            print("link:", result['href'])
+                    print("link:", result['href'])
 
-            # document = Document(page_content=result['title'], metadata = {"url": result['href']})
+                    # document = Document(page_content=result['title'], metadata = {"url": result['href']})
 
-            # documents.append(document)
-            # if result['href'] not in urls:
+                    # documents.append(document)
+                    # if result['href'] not in urls:
 
-            urls.append(result['href'])
-
-
-        # await create_store(documents)
-
-        # docs = store_search(f"{data.message}")
-
-        # pprint.pprint(doc)
-
-        # doc_content = "\n".join([d.page_content for d in doc])
-
-        # response = client.responses.parse(
-        #         model="openai/gpt-oss-20b:free",
-        #         input=[
-        #             {"role": "system", "content": f"Choose the document that suits the {data.message} the most."},
-        #             {
-        #                 "role": "user",
-        #                 "content": doc_content,
-        #             },
-        #         ],
-        #         # text_format=Answer,
-        #     )
-        # best_doc = response.output_parsed
-
-        # pprint.pprint(best_doc)
-
-        # selected_urls.append(best_doc.metadata["url"])
-
-        # crawled_pages = []
-
-        # results = await asyncio.gather(
-        #     *[crawl(doc.metadata["url"]) for doc in docs[:4]]
-        # )
-
-        # with ThreadPoolExecutor(max_workers=4) as executor:
-        #     results = list(executor.map(crawl, docs[:4]))
-
-        # scraper = UniversalProductScraper(
-        #     use_llm=False,  # Set True nếu muốn dùng LLM
-        #     llm_api_key="your-api-key-here"  # Thêm API key nếu dùng LLM
-        # )
-
-        # products = await asyncio.gather(
-        #     *[extract_with_generated_schema(r, data.root) for r in urls if r]
-        # )
-
-        tmp=0
-        
-        try:
-            for i, url in enumerate(urls):
-                x=requests.get(url)
-                if x.status_code == 200:
-                    tmp=i
-                    break
-        except Exception as e:
-            print("Error requesting URL:", str(e))
-
-        await create_xpath_strategy(urls[tmp], data.root)
-
-        products = await extract_with_generated_schema(urls[:10], data.root)
-
-        print(f"Number of products: {len(products)}")
-
-        # for doc in docs[:5]:
-        #     urls.append(doc.metadata["url"])
-
-        # with ThreadPoolExecutor(max_workers=4) as executor:
-        #     products = list(executor.map(scraper.scrape, urls))
-
-        # final_products = list((product for product in products if product))
-
-        # try:
-
-        #     unique = list({item["link"]: item for item in final_products}.values())
-        # except Exception as e:
-        #     print("Error deduplicating products:", str(e))
-        #     unique = final_products
+                    urls.append(result['href'])
 
 
-        # print("number of final_products:", len(unique))
+                # await create_store(documents)
 
-        # for item in unique:
-        #     print("product:", item)
+                # docs = store_search(f"{data.message}")
 
-        # products = []
+                # pprint.pprint(doc)
 
-        # for doc in docs[:5]:
-        #     products.append(scraper.scrape(doc.metadata["url"],method="auto"))
+                # doc_content = "\n".join([d.page_content for d in doc])
 
-        # # result = await crawl_request_html(doc[0].metadata["url"])
-        # url, text, title, set_imgs = crawl(doc[0].metadata["url"])
-        
-        # product = scraper.scrape(url, method='auto')
+                # response = client.responses.parse(
+                #         model="openai/gpt-oss-20b:free",
+                #         input=[
+                #             {"role": "system", "content": f"Choose the document that suits the {data.message} the most."},
+                #             {
+                #                 "role": "user",
+                #                 "content": doc_content,
+                #             },
+                #         ],
+                #         # text_format=Answer,
+                #     )
+                # best_doc = response.output_parsed
 
-        # # product = await extract_product_info(url, text, title, set_imgs, data.root, data.message)
+                # pprint.pprint(best_doc)
 
-        # products =[]
+                # selected_urls.append(best_doc.metadata["url"])
 
-        # products.append(product)
+                # crawled_pages = []
 
-        end_time = time.perf_counter()
-        execution_time = end_time - start_time
-        print(f"Thời gian thực hiện: {execution_time} giây")
+                # results = await asyncio.gather(
+                #     *[crawl(doc.metadata["url"]) for doc in docs[:4]]
+                # )
 
-        return {"status": "success", "type": "products", "data": products}
-        
+                # with ThreadPoolExecutor(max_workers=4) as executor:
+                #     results = list(executor.map(crawl, docs[:4]))
 
-    except Exception as e:
-        logger.error(f"Error in /crawl endpoint: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+                # scraper = UniversalProductScraper(
+                #     use_llm=False,  # Set True nếu muốn dùng LLM
+                #     llm_api_key="your-api-key-here"  # Thêm API key nếu dùng LLM
+                # )
+
+                # products = await asyncio.gather(
+                #     *[extract_with_generated_schema(r, data.root) for r in urls if r]
+                # )
+
+                tmp=0
+                
+                try:
+                    for i, url in enumerate(urls):
+                        x=requests.get(url)
+                        if x.status_code == 200:
+                            tmp=i
+                            break
+                except Exception as e:
+                    print("Error requesting URL:", str(e))
+
+                package = {"status": "success", "message": "Generating schema..."}
+
+                await websocket.send_json(package)
+
+                await create_xpath_strategy(urls[tmp], root_url, overwrite=False)
+
+                package = {"status": "success", "message": "Extracting results..."}
+
+                await websocket.send_json(package)
+
+                products = await extract_with_generated_schema(urls[:10], root_url)
+
+                print(f"Number of products: {len(products)}")
+
+                if len(products)<1:
+                    package = {"status": "success", "message": "Generating another schema..."}
+
+                    await websocket.send_json(package)
+
+                    await create_xpath_strategy(urls[tmp+1], root_url, overwrite=True)
+
+                    package = {"status": "success", "message": "Extracting results..."}
+
+                    await websocket.send_json(package)
+
+                    products = await extract_with_generated_schema(urls[:10], root_url)
+
+                # for doc in docs[:5]:
+                #     urls.append(doc.metadata["url"])
+
+                # with ThreadPoolExecutor(max_workers=4) as executor:
+                #     products = list(executor.map(scraper.scrape, urls))
+
+                # final_products = list((product for product in products if product))
+
+                # try:
+
+                #     unique = list({item["link"]: item for item in final_products}.values())
+                # except Exception as e:
+                #     print("Error deduplicating products:", str(e))
+                #     unique = final_products
+
+
+                # print("number of final_products:", len(unique))
+
+                # for item in unique:
+                #     print("product:", item)
+
+                # products = []
+
+                # for doc in docs[:5]:
+                #     products.append(scraper.scrape(doc.metadata["url"],method="auto"))
+
+                # # result = await crawl_request_html(doc[0].metadata["url"])
+                # url, text, title, set_imgs = crawl(doc[0].metadata["url"])
+                
+                # product = scraper.scrape(url, method='auto')
+
+                # # product = await extract_product_info(url, text, title, set_imgs, data.root, data.message)
+
+                # products =[]
+
+                # products.append(product)
+
+                end_time = time.perf_counter()
+                execution_time = end_time - start_time
+                print(f"Thời gian thực hiện: {execution_time} giây")
+
+                # return {"status": "success", "type": "products", "data": products}
+                package = {"status": "success", "type": "products", "data": products}
+
+                await websocket.send_json(package)
+                
+
+            except Exception as e:
+                logger.error(f"Error in /crawl endpoint: {str(e)}", exc_info=True)
+                # raise HTTPException(status_code=500, detail=str(e))
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 
 if __name__ == "__main__":

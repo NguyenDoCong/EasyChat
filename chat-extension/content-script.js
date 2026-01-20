@@ -397,6 +397,62 @@
             }
         }
 
+        /* Status message animations */
+        .status-message {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-spinner {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #2563eb;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .status-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .status-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .status-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-8px);
+            }
+        }
+
         .chat-input-area {
             padding: 16px;
             background: white;
@@ -590,13 +646,7 @@
                     Xin chào! Tôi có thể giúp gì cho bạn?
                 </div>
             </div>
-            
-            <div class="typing-indicator" id="chatWidgetTyping">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-            
+                        
             <div class="chat-input-area">
                 <textarea 
                     id="chatWidgetInput" 
@@ -622,7 +672,7 @@
             messagesArea: document.getElementById('chatWidgetMessages'),
             input: document.getElementById('chatWidgetInput'),
             sendButton: document.getElementById('chatWidgetSend'),
-            typingIndicator: document.getElementById('chatWidgetTyping'),
+            // typingIndicator: document.getElementById('chatWidgetTyping'),
             closeButton: window.querySelector('.chat-close-btn')
         };
     }
@@ -635,7 +685,7 @@
             this.messagesArea = elements.messagesArea;
             this.input = elements.input;
             this.sendButton = elements.sendButton;
-            this.typingIndicator = elements.typingIndicator;
+            // this.typingIndicator = elements.typingIndicator;
             this.closeButton = elements.closeButton;
 
             this.init();
@@ -769,12 +819,12 @@
         }
 
         showTyping() {
-            this.typingIndicator.classList.add('active');
+            // this.typingIndicator.classList.add('active');
             this.scrollToBottom();
         }
 
         hideTyping() {
-            this.typingIndicator.classList.remove('active');
+            // this.typingIndicator.classList.remove('active');
         }
 
         scrollToBottom() {
@@ -795,33 +845,96 @@
             this.showTyping();
 
             try {
-                const response = await fetch(CONFIG.apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: message,
-                        url: window.location.href,
-                        root: window.location.origin,
-                        timestamp: new Date().toISOString()
-                    })
-                });
 
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                // const response = await fetch(CONFIG.apiUrl, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({
+                //         message: message,
+                //         url: window.location.href,
+                //         root: window.location.origin,
+                //         timestamp: new Date().toISOString()
+                //     })
+                // });
 
-                const data = await response.json();
-                this.hideTyping();
+                // if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);                
 
-                if (data.status === 'success') {
+                // const data = await response.json();
+
+                const ws = new WebSocket(`ws://localhost:8000/ws/`);
+                const self = this;
+                let statusMessageElement = null; // Lưu element của status message hiện tại
+
+                const body = JSON.stringify({
+                    message: message,
+                    url: window.location.href,
+                    root: window.location.origin,
+                    timestamp: new Date().toISOString()
+                })
+
+                // Chỉ gửi message khi kết nối thành công
+                ws.onopen = function () {
+                    console.log('WebSocket kết nối thành công');
+                    ws.send(body);
+                };
+
+                // Xử lý nhận message từ server
+                ws.onmessage = function (event) {
+                    const data = JSON.parse(event.data);
+
                     if (data.type === 'products' && data.data) {
-                        await this.addMessage(data, 'bot');
+                        // Xóa status message cũ nếu có
+                        if (statusMessageElement && statusMessageElement.parentNode) {
+                            statusMessageElement.remove();
+                            statusMessageElement = null;
+                        }
+                        // Đây là message cuối cùng - ẩn typing indicator
+                        self.hideTyping();
+                        self.addMessage(data, 'bot');
+                        // Chỉ đóng kết nối khi nhận được sản phẩm cuối cùng
+                        ws.close();
                     } else if (data.message) {
-                        await this.addMessage(data.message, 'bot');
+                        // Đây là message trạng thái - ghi đè status message cũ
+                        if (statusMessageElement && statusMessageElement.parentNode) {
+                            // Xóa status message cũ
+                            statusMessageElement.remove();
+                        }
+                        // Tạo status message mới với animated spinner
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message bot';
+                        
+                        const statusContent = document.createElement('div');
+                        statusContent.className = 'status-message';
+                        
+                        const text = document.createElement('span');
+                        text.textContent = data.message;
+                        
+                        const spinner = document.createElement('div');
+                        spinner.className = 'status-spinner';
+                        spinner.innerHTML = '<div class="status-dot"></div><div class="status-dot"></div><div class="status-dot"></div>';
+                        
+                        statusContent.appendChild(text);
+                        statusContent.appendChild(spinner);
+                        messageDiv.appendChild(statusContent);
+                        
+                        self.messagesArea.appendChild(messageDiv);
+                        statusMessageElement = messageDiv;
+                        self.scrollToBottom();
                     }
-                } else if (data.message) {
-                    await this.addMessage(data.message, 'bot');
-                } else {
-                    await this.addMessage('Không có phản hồi từ server', 'system');
-                }
+                };
+
+                // Xử lý lỗi kết nối
+                ws.onerror = function (error) {
+                    console.error('WebSocket lỗi:', error);
+                    self.hideTyping();
+                    self.addMessage('❌ Lỗi kết nối WebSocket. Vui lòng thử lại.', 'system');
+                    ws.close();
+                };
+
+                // Xử lý đóng kết nối
+                ws.onclose = function () {
+                    console.log('WebSocket đã đóng');
+                };
 
             } catch (error) {
                 console.log('Error:', error);
@@ -929,12 +1042,12 @@
 
             if (response.ok) {
                 const result = await response.json();
-                overlay.style.color= "white";
+                overlay.style.color = "white";
 
                 overlay.style.background =
                     "linear-gradient(135deg, rgba(30,30,60,0.95), rgba(50,50,80,0.95))";
 
-                overlay.querySelector('.overlay-title').innerHTML = result.result.substring(0,100) || 'Không có thông tin';
+                overlay.querySelector('.overlay-title').innerHTML = result.result.substring(0, 100) || 'Không có thông tin';
                 console.log('✅ Loaded content for:', url);
             } else {
                 console.log('API returned status:', response.status);

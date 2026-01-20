@@ -1,26 +1,26 @@
 {
-  "name": "R\u1ea1ng \u0110\u00f4ng Product List",
-  "baseSelector": "//div[contains(@class, 'product-card')]",
+  "name": "Product Detail Schema",
+  "baseSelector": "//main[@id='product-detail-page']",
   "fields": [
     {
       "name": "title",
-      "selector": ".//a[@class='product-title']",
+      "selector": ".//h1[@class='mb-1 text-xl leading-[24px] font-semibold text-gray-700 uppercase font-display']",
       "type": "text"
     },
     {
       "name": "price",
-      "selector": ".//span[@class='product-price']",
+      "selector": ".//strong[@class='mr-4 font-bold text-red-400 h5']",
       "type": "text"
     },
     {
       "name": "image_url",
-      "selector": ".//img[contains(@class, 'product-image')]",
+      "selector": ".//img[@class='object-cover w-full h-full image-master']",
       "type": "attribute",
       "attribute": "src"
     },
     {
       "name": "description",
-      "selector": "",
+      "selector": ".//div[@class='prose max-w-none caption summary-content']",
       "type": "text"
     }
   ]

@@ -75,25 +75,28 @@ async def run_extraction(crawler: AsyncWebCrawler, urls, strategy, name):
                     except Exception as e:
                         print(f"Error retrieving title metadata: {str(e)}")
                         final_result["name"] = None
+                        continue
                     try:
                         print(f"URL: {result.url}")
                         final_result["link"] = result.url
                     except Exception as e:
                         print(f"Error retrieving URL: {str(e)}")
                         final_result["link"] = None
-
+                        continue                       
                     try:
                         print(f"Price: {r['price']}")
                         final_result["price"] = r["price"]
                     except Exception as e:
                         print(f"Error parsing extracted price content: {str(e)}")
                         final_result["price"] = None
+                        continue
                     try:
                         print(f"Description: {r['description']}")
                         final_result["description"] = r["description"][:200]  # Truncate long description
                     except Exception as e:
                         print(f"Error retrieving description metadata: {str(e)}")
                         final_result["description"] = None
+                        continue                        
                     try:
                         print(f"Image: {r['image_url']}")
                         final_result["image"] = r["image_url"]
@@ -220,14 +223,14 @@ async def extract_with_generated_schema(urls, root):
     return result
 
 
-async def create_xpath_strategy(url, root):
+async def create_xpath_strategy(url, root, overwrite=False):
     print("Generating schema via LLM...")
 
     cache_dir = Path("./schema_cache")
     cache_dir.mkdir(exist_ok=True)
     schema_file = cache_dir / f"product_schema_{root[8:]}.json"
 
-    if schema_file.exists():
+    if schema_file.exists() and not overwrite:
         xpath_schema = json.load(schema_file.open())
         print(f"Using cached schema: {xpath_schema}")
 
