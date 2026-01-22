@@ -19,7 +19,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 async def run_extraction(crawler: AsyncWebCrawler, urls, strategy, name):
     """Helper function to run extraction with proper configuration"""
 
@@ -306,8 +305,7 @@ async def create_xpath_strategy(url, root, overwrite=False):
 
 if __name__ == "__main__":
     urls = [
-        "https://www.dienmayxanh.com/may-tinh-bang/ipad-11-wifi-128gb?itm_source=home&itm_medium=product_card&itm_campaign=viewed",
-        "https://www.dienmayxanh.com/may-loc-khong-khi/xiaomi-smart-air-purifier-4-compact-eu-bhr5860eu-27w?itm_source=home&itm_medium=product_card&itm_campaign=viewed",
+        "file://html.html",
     ]
 
     async def schema_and_extract(urls, root):
@@ -319,4 +317,4 @@ if __name__ == "__main__":
 
         return
 
-    asyncio.run(schema_and_extract(urls, root="https://www.dienmayxanh.com"))
+    asyncio.run(schema_and_extract(urls, root="https://rangdongstore.vn"))

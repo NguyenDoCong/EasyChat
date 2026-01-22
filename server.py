@@ -18,7 +18,7 @@ import uvicorn
 from chain import initialize_retriever, store_search
 from langchain_core.messages import HumanMessage
 import asyncio
-from typing import Dict
+from typing import Dict, List
 import json
 from chain import llm_agent
 from agent import agent_builder
@@ -40,6 +40,8 @@ from utils.claude_crawl import UniversalProductScraper
 import time
 from utils.test_generated_schema import extract_with_generated_schema, create_xpath_strategy
 import requests
+from qdrant_client import QdrantClient
+from utils.test_crawl4ai import test_deep_crawl
 
 # Configure logging
 logging.basicConfig(
@@ -120,7 +122,7 @@ def receive_hover(info: Info):
 
 @app.post("/init")
 # async def create_store(info: Info):
-async def create_store(documents: Document):
+async def create_store(documents: List[Document]):
     """Build vector store."""
     # logger.info(f"Initializing vector store for URL: {info.href}")
     try:
@@ -136,10 +138,13 @@ class ExtractedInfos(BaseModel):
     price: str = Field(description="giá")
     specs: str = Field(description="đặc điểm")
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-)
+# client = OpenAI(
+#     base_url="https://openrouter.ai/api/v1",
+#     api_key=os.getenv("OPENROUTER_API_KEY"),
+# )
+
+client = QdrantClient(":memory:")
+
 
 # client = genai.Client()
 
@@ -189,156 +194,161 @@ async def websocket_endpoint(websocket: WebSocket):
             print(f"Received crawl request: {search_query} for site: {root_url}")
 
             try:
-                package = {"status": "success", "message": "Searching for products..."}
-                await websocket.send_json(package)
-                print("Message sent: Searching for products...")                
-                
-                results = DDGS().text(
-                    f"{search_query} site:{root_url}", max_results=20
-                )
-                
-                # selected_urls = []
+                if not client.collection_exists(collection_name=root_url):
+                    package = {"status": "success", "message": "Searching for products..."}
+                    await websocket.send_json(package)
+                    print("Message sent: Searching for products...")                
+                    
+                    results = DDGS().text(
+                        f"{search_query} site:{root_url}", max_results=20
+                    )
+                    
+                    # selected_urls = []
 
-                urls = []     
+                    urls = []     
 
-                for result in results:
+                    for result in results:
 
-                    print("link:", result['href'])
+                        print("link:", result['href'])
 
-                    # document = Document(page_content=result['title'], metadata = {"url": result['href']})
+                        # document = Document(page_content=result['title'], metadata = {"url": result['href']})
 
-                    # documents.append(document)
-                    # if result['href'] not in urls:
+                        # documents.append(document)
+                        # if result['href'] not in urls:
 
-                    urls.append(result['href'])
+                        urls.append(result['href'])
 
 
-                # await create_store(documents)
+                    # await create_store(documents)
 
-                # docs = store_search(f"{data.message}")
+                    # docs = store_search(f"{data.message}")
 
-                # pprint.pprint(doc)
+                    # pprint.pprint(doc)
 
-                # doc_content = "\n".join([d.page_content for d in doc])
+                    # doc_content = "\n".join([d.page_content for d in doc])
 
-                # response = client.responses.parse(
-                #         model="openai/gpt-oss-20b:free",
-                #         input=[
-                #             {"role": "system", "content": f"Choose the document that suits the {data.message} the most."},
-                #             {
-                #                 "role": "user",
-                #                 "content": doc_content,
-                #             },
-                #         ],
-                #         # text_format=Answer,
-                #     )
-                # best_doc = response.output_parsed
+                    # response = client.responses.parse(
+                    #         model="openai/gpt-oss-20b:free",
+                    #         input=[
+                    #             {"role": "system", "content": f"Choose the document that suits the {data.message} the most."},
+                    #             {
+                    #                 "role": "user",
+                    #                 "content": doc_content,
+                    #             },
+                    #         ],
+                    #         # text_format=Answer,
+                    #     )
+                    # best_doc = response.output_parsed
 
-                # pprint.pprint(best_doc)
+                    # pprint.pprint(best_doc)
 
-                # selected_urls.append(best_doc.metadata["url"])
+                    # selected_urls.append(best_doc.metadata["url"])
 
-                # crawled_pages = []
+                    # crawled_pages = []
 
-                # results = await asyncio.gather(
-                #     *[crawl(doc.metadata["url"]) for doc in docs[:4]]
-                # )
+                    # results = await asyncio.gather(
+                    #     *[crawl(doc.metadata["url"]) for doc in docs[:4]]
+                    # )
 
-                # with ThreadPoolExecutor(max_workers=4) as executor:
-                #     results = list(executor.map(crawl, docs[:4]))
+                    # with ThreadPoolExecutor(max_workers=4) as executor:
+                    #     results = list(executor.map(crawl, docs[:4]))
 
-                # scraper = UniversalProductScraper(
-                #     use_llm=False,  # Set True nếu muốn dùng LLM
-                #     llm_api_key="your-api-key-here"  # Thêm API key nếu dùng LLM
-                # )
+                    # scraper = UniversalProductScraper(
+                    #     use_llm=False,  # Set True nếu muốn dùng LLM
+                    #     llm_api_key="your-api-key-here"  # Thêm API key nếu dùng LLM
+                    # )
 
-                # products = await asyncio.gather(
-                #     *[extract_with_generated_schema(r, data.root) for r in urls if r]
-                # )
+                    # products = await asyncio.gather(
+                    #     *[extract_with_generated_schema(r, data.root) for r in urls if r]
+                    # )
 
-                tmp=0
-                
-                try:
-                    for i, url in enumerate(urls):
-                        x=requests.get(url)
-                        if x.status_code == 200:
-                            tmp=i
-                            break
-                except Exception as e:
-                    print("Error requesting URL:", str(e))
+                    tmp=0
+                    
+                    try:
+                        for i, url in enumerate(urls):
+                            x=requests.get(url)
+                            if x.status_code == 200:
+                                tmp=i
+                                break
+                    except Exception as e:
+                        print("Error requesting URL:", str(e))
 
-                package = {"status": "success", "message": "Generating schema..."}
-
-                await websocket.send_json(package)
-
-                await create_xpath_strategy(urls[tmp], root_url, overwrite=False)
-
-                package = {"status": "success", "message": "Extracting results..."}
-
-                await websocket.send_json(package)
-
-                products = await extract_with_generated_schema(urls[:10], root_url)
-
-                print(f"Number of products: {len(products)}")
-
-                if len(products)<1:
-                    package = {"status": "success", "message": "Generating another schema..."}
+                    package = {"status": "success", "message": "Generating schema..."}
 
                     await websocket.send_json(package)
 
-                    await create_xpath_strategy(urls[tmp+1], root_url, overwrite=True)
+                    await create_xpath_strategy(urls[tmp], root_url, overwrite=False)
 
                     package = {"status": "success", "message": "Extracting results..."}
 
                     await websocket.send_json(package)
 
                     products = await extract_with_generated_schema(urls[:10], root_url)
+                    
+                    print(f"Number of products: {len(products)}")
 
-                # for doc in docs[:5]:
-                #     urls.append(doc.metadata["url"])
+                    if len(products)<1:
+                        package = {"status": "success", "message": "Generating another schema..."}
 
-                # with ThreadPoolExecutor(max_workers=4) as executor:
-                #     products = list(executor.map(scraper.scrape, urls))
+                        await websocket.send_json(package)
 
-                # final_products = list((product for product in products if product))
+                        await create_xpath_strategy(urls[tmp+1], root_url, overwrite=True)
 
-                # try:
+                        package = {"status": "success", "message": "Extracting results..."}
+                        
+                        docs = await test_deep_crawl(root_url)
+                        
+                        await create_store(docs)
 
-                #     unique = list({item["link"]: item for item in final_products}.values())
-                # except Exception as e:
-                #     print("Error deduplicating products:", str(e))
-                #     unique = final_products
+                        await websocket.send_json(package)
+
+                        products = await extract_with_generated_schema(urls[:10], root_url)
+
+                    # for doc in docs[:5]:
+                    #     urls.append(doc.metadata["url"])
+
+                    # with ThreadPoolExecutor(max_workers=4) as executor:
+                    #     products = list(executor.map(scraper.scrape, urls))
+
+                    # final_products = list((product for product in products if product))
+
+                    # try:
+
+                    #     unique = list({item["link"]: item for item in final_products}.values())
+                    # except Exception as e:
+                    #     print("Error deduplicating products:", str(e))
+                    #     unique = final_products
 
 
-                # print("number of final_products:", len(unique))
+                    # print("number of final_products:", len(unique))
 
-                # for item in unique:
-                #     print("product:", item)
+                    # for item in unique:
+                    #     print("product:", item)
 
-                # products = []
+                    # products = []
 
-                # for doc in docs[:5]:
-                #     products.append(scraper.scrape(doc.metadata["url"],method="auto"))
+                    # for doc in docs[:5]:
+                    #     products.append(scraper.scrape(doc.metadata["url"],method="auto"))
 
-                # # result = await crawl_request_html(doc[0].metadata["url"])
-                # url, text, title, set_imgs = crawl(doc[0].metadata["url"])
-                
-                # product = scraper.scrape(url, method='auto')
+                    # # result = await crawl_request_html(doc[0].metadata["url"])
+                    # url, text, title, set_imgs = crawl(doc[0].metadata["url"])
+                    
+                    # product = scraper.scrape(url, method='auto')
 
-                # # product = await extract_product_info(url, text, title, set_imgs, data.root, data.message)
+                    # # product = await extract_product_info(url, text, title, set_imgs, data.root, data.message)
 
-                # products =[]
+                    # products =[]
 
-                # products.append(product)
+                    # products.append(product)
 
-                end_time = time.perf_counter()
-                execution_time = end_time - start_time
-                print(f"Thời gian thực hiện: {execution_time} giây")
+                    end_time = time.perf_counter()
+                    execution_time = end_time - start_time
+                    print(f"Thời gian thực hiện: {execution_time} giây")
 
-                # return {"status": "success", "type": "products", "data": products}
-                package = {"status": "success", "type": "products", "data": products}
+                    # return {"status": "success", "type": "products", "data": products}
+                    package = {"status": "success", "type": "products", "data": products}
 
-                await websocket.send_json(package)
+                    await websocket.send_json(package)
                 
 
             except Exception as e:

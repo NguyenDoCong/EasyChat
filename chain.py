@@ -1,7 +1,7 @@
 from langchain.agents import create_agent
 from langchain.tools import tool
 from pydantic import BaseModel, Field
-from typing import Dict, Any
+from typing import Dict, Any, List
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_ollama import ChatOllama
@@ -51,7 +51,7 @@ current_retriever = None
 _initialized = False
 
 # async def initialize_retriever(href: str = None):
-async def initialize_retriever(documents: Document = None):
+async def initialize_retriever(documents: List[Document], root_url: str = None):
     """Initialize retriever once and reuse"""
     global current_retriever, _initialized
     
@@ -65,13 +65,13 @@ async def initialize_retriever(documents: Document = None):
     client = QdrantClient(":memory:")
     
     client.create_collection(
-        collection_name="demo_collection",
+        collection_name=root_url,
         vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
     )
     
     vector_store = QdrantVectorStore(
         client=client,
-        collection_name="demo_collection",
+        collection_name=root_url,
         embedding=embeddings,
     )
     
@@ -80,6 +80,9 @@ async def initialize_retriever(documents: Document = None):
     
     current_retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 4})
     _initialized = True
+    
+    # if client.collection_exists(collection_name="demo_collection"):
+    #     print("Collection exists.")
     
     return current_retriever
 
@@ -176,3 +179,16 @@ llm_agent = create_agent(
 # llm_agent.invoke(
 #     {"messages": [{"role": "user", "content": "what is the weather in sf"}]}
 # )
+
+if __name__ == "__main__":
+    import asyncio
+
+    async def main():
+        # Example usage
+        query = "Sample query"
+        result = store_search(query)
+        print(result)
+        
+    documents = [Document(page_content="Sample document content", metadata={"source": "http://example.com"})]
+
+    asyncio.run(initialize_retriever(documents))
