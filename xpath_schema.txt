@@ -1,3 +1,3 @@
-name: Product Detail Schema
-baseSelector: //main[@id='product-detail-page']
-fields: [{'name': 'title', 'selector': ".//h1[@class='mb-1 text-xl leading-[24px] font-semibold text-gray-700 uppercase font-display']", 'type': 'text'}, {'name': 'price', 'selector': ".//strong[@class='mr-4 font-bold text-red-400 h5']", 'type': 'text'}, {'name': 'image_url', 'selector': ".//img[@class='object-cover w-full h-full image-master']", 'type': 'attribute', 'attribute': 'src'}, {'name': 'description', 'selector': ".//div[@class='prose max-w-none caption summary-content']", 'type': 'text'}]
+name: MSI Laptop Product Listing
+baseSelector: //ul[@class='listproduct']/li[contains(@class, 'item')]
+fields: [{'name': 'title', 'selector': './/h3', 'type': 'text'}, {'name': 'price', 'selector': ".//strong[@class='price']", 'type': 'text'}, {'name': 'image_url', 'selector': ".//div[contains(@class, 'item-img')]/img", 'type': 'attribute', 'attribute': 'data-src'}, {'name': 'description', 'selector': ".//div[@class='utility']", 'type': 'text'}]

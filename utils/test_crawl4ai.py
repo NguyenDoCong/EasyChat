@@ -26,24 +26,24 @@ load_dotenv()
 
 ##################### test deep crawl ##################################
 
-async def test_deep_crawl(root: str) -> List[Document]:
+async def test_deep_crawl(root: str, query: str) -> List[Document]:
 
     # Create an SEO filter that looks for specific keywords in page metadata
     seo_filter = SEOFilter(
-        threshold=0.5,  # Minimum score (0.0 to 1.0)
-        keywords=["bóng đèn"]
+        threshold=0.3,  # Minimum score (0.0 to 1.0)
+        keywords=[query]
     )
 
     # Create a content relevance filter
     relevance_filter = ContentRelevanceFilter(
-        query="bóng đèn",
-        threshold=0.7  # Minimum similarity score (0.0 to 1.0)
+        query=query,
+        threshold=0.3  # Minimum similarity score (0.0 to 1.0)
     )
 
     # Create a scorer
     keyword_scorer = KeywordRelevanceScorer(
-        keywords=["bóng đèn"],
-        weight=0.7
+        keywords=[query],
+        weight=0.3
     )
 
     cache_dir = Path("./schema_cache")
@@ -62,11 +62,11 @@ async def test_deep_crawl(root: str) -> List[Document]:
         deep_crawl_strategy=BestFirstCrawlingStrategy(
             max_depth=2,
             include_external=False,
-            # filter_chain=FilterChain([relevance_filter, seo_filter]),
+            filter_chain=FilterChain([relevance_filter, seo_filter]),
             # Maximum number of pages to crawl (optional)
-            max_pages=25,
+            max_pages=100,
             # score_threshold=0.3,       # Minimum score for URLs to be crawled (optional)
-            # url_scorer=keyword_scorer,
+            url_scorer=keyword_scorer,
         ),
         scraping_strategy=LXMLWebScrapingStrategy(),
         verbose=True,
@@ -79,95 +79,108 @@ async def test_deep_crawl(root: str) -> List[Document]:
 
     results = []
 
-    async with AsyncWebCrawler() as crawler:
-        results = await crawler.arun("https://rangdongstore.vn", config=config)
+    final_results = []
 
-        print(f"Crawled {len(results)} pages in total")
+    try:
 
-        final_results = []
+        async with AsyncWebCrawler() as crawler:
+            try:
+                results = await crawler.arun(root, config=config)
+            except Exception as e:
+                print(f"Error during crawling: {e}")
 
-        # Access individual results
-        for result in results:  # Show first 3 results
-            print(f"URL: {result.url}")
-            print(f"Depth: {result.metadata.get('depth', 0)}")
-            if result.success:
-                print(f"Extracted Content: {result.extracted_content}")
-                # print(f"Extracted Content Type: {type(result.extracted_content)}")
-                # print(f"Number of content items: {len(result.extracted_content)}")
-                if result.extracted_content == "[]":
-                    print(f"No content extracted for {result.url}")
-                    continue
-                print("Extracted content not empty!!!")
+            print(f"Crawled {len(results)} pages in total")
 
-                import ast
-                res = ast.literal_eval(result.extracted_content)
 
-                for r in res:
-                    final_result = {}
-                    print(f"Extracted item: {r}")
-                    try:
-                        print(f"Title: {r['title']}")
-                        final_result["name"] = r["title"]
-                    except Exception as e:
-                        print(f"Error retrieving title metadata: {str(e)}")
-                        final_result["name"] = None
-                        continue
-                    try:
-                        print(f"URL: {result.url}")
-                        final_result["link"] = result.url
-                    except Exception as e:
-                        print(f"Error retrieving URL: {str(e)}")
-                        final_result["link"] = None
-                        continue
-                    try:
-                        print(f"Price: {r['price']}")
-                        final_result["price"] = r["price"]
-                    except Exception as e:
-                        print(
-                            f"Error parsing extracted price content: {str(e)}")
-                        final_result["price"] = None
-                        continue
-                    try:
-                        print(f"Description: {r['description']}")
-                        # Truncate long description
-                        final_result["description"] = r["description"][:200]
-                    except Exception as e:
-                        print(
-                            f"Error retrieving description metadata: {str(e)}")
-                        final_result["description"] = None
-                        continue
-                    try:
-                        print(f"Image: {r['image_url']}")
-                        final_result["image"] = r["image_url"]
-                    except Exception as e:
-                        print(f"Error retrieving image metadata: {str(e)}")
-                        final_result["image"] = None
-                        continue
-                    # print(f"Raw Markdown Length: {len(result.markdown.raw_markdown)}")
-                    # print(
-                    #     f"Citations Markdown Length: {len(result.markdown.markdown_with_citations)}"
-                    # )
+            # Access individual results
+            for result in results:  # Show first 3 results
+                if result.success:
+                
+                    print(f"URL: {result.url}")
+                    print(f"Depth: {result.metadata.get('depth', 0)}")
+                    if result.success:
+                        print(f"Extracted Content: {result.extracted_content}")
+                        # print(f"Extracted Content Type: {type(result.extracted_content)}")
+                        # print(f"Number of content items: {len(result.extracted_content)}")
+                        if result.extracted_content == "[]":
+                            print(f"No content extracted for {result.url}")
+                            continue
+                        print("Extracted content not empty!!!")
 
-                    print(f"Appending {final_result}")
+                        import ast
+                        res = ast.literal_eval(result.extracted_content)
 
-                    document = Document(
-                        page_content=final_result['title'] +
-                        final_result['description'],
-                        metadata={"title": final_result['title'],
-                                  "url": final_result['link'],
-                                  "image_url": final_result['image_url'],
-                                  "description": final_result['description']}
-                    )
+                        for r in res:
+                            final_result = {}
+                            print(f"Extracted item: {r}")
+                            try:
+                                print(f"Title: {r['title']}")
+                                final_result["name"] = r["title"]
+                            except Exception as e:
+                                print(f"Error retrieving title metadata: {str(e)}")
+                                final_result["name"] = None
+                                continue
+                            try:
+                                print(f"URL: {result.url}")
+                                final_result["link"] = result.url
+                            except Exception as e:
+                                print(f"Error retrieving URL: {str(e)}")
+                                final_result["link"] = None
+                                continue
+                            try:
+                                print(f"Price: {r['price']}")
+                                final_result["price"] = r["price"]
+                            except Exception as e:
+                                print(
+                                    f"Error parsing extracted price content: {str(e)}")
+                                final_result["price"] = None
+                                continue
+                            try:
+                                print(f"Description: {r['description']}")
+                                # Truncate long description
+                                final_result["description"] = r["description"][:200]
+                            except Exception as e:
+                                print(
+                                    f"Error retrieving description metadata: {str(e)}")
+                                final_result["description"] = None
+                                continue
+                            try:
+                                print(f"Image: {r['image_url']}")
+                                final_result["image"] = r["image_url"]
+                            except Exception as e:
+                                print(f"Error retrieving image metadata: {str(e)}")
+                                final_result["image"] = None
+                                continue
+                            # print(f"Raw Markdown Length: {len(result.markdown.raw_markdown)}")
+                            # print(
+                            #     f"Citations Markdown Length: {len(result.markdown.markdown_with_citations)}"
+                            # )
 
-                    final_results.append(document)
-                    print(
-                        f"Number of final results so far: {len(final_results)}")
-                    if len(final_results) > 10:
-                        print(
-                            "More than 10 final results, stopping further processing.")
-                        break
+                            print(f"Appending {final_result}")
 
-    return final_results
+                            document = Document(
+                                page_content=final_result['name'] +
+                                final_result['description'],
+                                metadata={"title": final_result['name'],
+                                        "url": final_result['link'],
+                                        "price": final_result['price'],
+                                        "image_url": final_result['image'],
+                                        "description": final_result['description']}
+                            )
+
+                            final_results.append(document)
+                            print(
+                                f"Number of final results so far: {len(final_results)}")
+                            # if len(final_results) > 10:
+                            #     print(
+                            #         "More than 10 final results, stopping further processing.")
+                            #     break
+
+        return final_results
+
+    except Exception as e:
+        print(f"Error during deep crawl: {e}")
+        return final_results
 
 #####################################################################
 

@@ -39,10 +39,14 @@ llm = ChatOpenAI(
     model="openai/gpt-oss-20b:free",
 )
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-)
+# client = OpenAI(
+#     base_url="https://openrouter.ai/api/v1",
+#     api_key=os.getenv("OPENROUTER_API_KEY"),
+# )
+
+# client = QdrantClient(url="http://localhost:6333")
+
+client = QdrantClient(":memory:")
 
 embeddings = OllamaEmbeddings(model="mxbai-embed-large:latest")
 
@@ -50,10 +54,14 @@ embeddings = OllamaEmbeddings(model="mxbai-embed-large:latest")
 current_retriever = None
 _initialized = False
 
+def check_collection_exists(collection_name: str) -> bool:
+    """Check if a collection exists in Qdrant."""
+    return client.collection_exists(collection_name=collection_name)
+
 # async def initialize_retriever(href: str = None):
 async def initialize_retriever(documents: List[Document], root_url: str = None):
     """Initialize retriever once and reuse"""
-    global current_retriever, _initialized
+    global current_retriever, _initialized, client
     
     # if _initialized and current_retriever is not None:
     #     return current_retriever
@@ -62,7 +70,6 @@ async def initialize_retriever(documents: List[Document], root_url: str = None):
         raise ValueError("documents is required for first initialization")
     
     # documents = await get_data(href)
-    client = QdrantClient(":memory:")
     
     client.create_collection(
         collection_name=root_url,

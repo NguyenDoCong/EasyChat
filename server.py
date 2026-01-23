@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 import uvicorn
 
 # from agent import agent_builder, build_retriever
-from chain import initialize_retriever, store_search
+from chain import check_collection_exists, initialize_retriever, store_search
 from langchain_core.messages import HumanMessage
 import asyncio
 from typing import Dict, List
@@ -122,11 +122,11 @@ def receive_hover(info: Info):
 
 @app.post("/init")
 # async def create_store(info: Info):
-async def create_store(documents: List[Document]):
+async def create_store(documents: List[Document], root_url: str):
     """Build vector store."""
     # logger.info(f"Initializing vector store for URL: {info.href}")
     try:
-        await initialize_retriever(documents)
+        await initialize_retriever(documents, root_url)
         logger.info("Vector store initialized successfully")
         return {"message": "Vector store created successfully."}
     except Exception as e:
@@ -142,8 +142,6 @@ class ExtractedInfos(BaseModel):
 #     base_url="https://openrouter.ai/api/v1",
 #     api_key=os.getenv("OPENROUTER_API_KEY"),
 # )
-
-client = QdrantClient(":memory:")
 
 
 # client = genai.Client()
@@ -194,7 +192,8 @@ async def websocket_endpoint(websocket: WebSocket):
             print(f"Received crawl request: {search_query} for site: {root_url}")
 
             try:
-                if not client.collection_exists(collection_name=root_url):
+
+                if not check_collection_exists(collection_name=root_url):
                     package = {"status": "success", "message": "Searching for products..."}
                     await websocket.send_json(package)
                     print("Message sent: Searching for products...")                
@@ -221,7 +220,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     # await create_store(documents)
 
-                    # docs = store_search(f"{data.message}")
 
                     # pprint.pprint(doc)
 
@@ -295,14 +293,12 @@ async def websocket_endpoint(websocket: WebSocket):
                         await create_xpath_strategy(urls[tmp+1], root_url, overwrite=True)
 
                         package = {"status": "success", "message": "Extracting results..."}
-                        
-                        docs = await test_deep_crawl(root_url)
-                        
-                        await create_store(docs)
-
-                        await websocket.send_json(package)
 
                         products = await extract_with_generated_schema(urls[:10], root_url)
+
+                        await websocket.send_json(package)      
+                        
+
 
                     # for doc in docs[:5]:
                     #     urls.append(doc.metadata["url"])
@@ -349,7 +345,21 @@ async def websocket_endpoint(websocket: WebSocket):
                     package = {"status": "success", "type": "products", "data": products}
 
                     await websocket.send_json(package)
+
+                    docs = await test_deep_crawl(root_url, search_query)
+                        
+                    await create_store(docs, root_url)
                 
+                else:
+                    package = {"status": "success", "message": "Vector store already exists. Skipping crawl."}
+                    await websocket.send_json(package)
+                    print("Message sent: Vector store already exists. Skipping crawl.")
+                    docs = store_search(f"{search_query}")
+                    print(f"Number of docs from store_search: {len(docs)}")
+                    for doc in docs:
+                        print("doc:", doc)
+                    package = {"status": "success", "type": "documents", "data": docs}  
+                    await websocket.send_json(package)                    
 
             except Exception as e:
                 logger.error(f"Error in /crawl endpoint: {str(e)}", exc_info=True)
