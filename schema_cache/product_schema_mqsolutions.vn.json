@@ -1,15 +1,10 @@
 {
-  "name": "Product Information",
+  "name": "Product Article Details",
   "baseSelector": "//article[contains(@class, 'blog-post')]",
   "fields": [
     {
       "name": "title",
       "selector": ".//h3[@class='entry-title']",
-      "type": "text"
-    },
-    {
-      "name": "price",
-      "selector": "",
       "type": "text"
     },
     {

@@ -769,7 +769,6 @@
                         <thead>
                             <tr>
                                 <th>Tên sản phẩm</th>
-                                <th>Giá</th>
                                 <th>Đặc điểm</th>
                             </tr>
                         </thead>
@@ -780,7 +779,6 @@
                 html += `
                     <tr>
                         <td><a href="${this.escape(p.link)}" target="_blank">${this.escape(p.name)}</a></td>
-                        <td>${this.escape(p.price)}</td>
                         <td>${this.escape(p.description)}</td>
                     </tr>
                 `;
@@ -796,10 +794,11 @@
                         </a>
                         <div class="product-content">
                             <a href="${this.escape(p.link)}" target="_blank" class="product-name">${this.escape(p.name)}</a>
-                            <div class="product-specs">${this.escape(p.description)}</div>
-                            <div class="price-wrapper">
-                                <div class="price">${this.escape(p.price)}</div>
-                            </div>
+                            <div class="product-specs">${this.escape(p.description)}</div>`
+                            // <div class="price-wrapper">
+                            //     <div class="price">${this.escape(p.price)}</div>
+                            // </div>
+                            html += `
                             <button class="add-to-cart-btn" onclick="window.open('${this.escape(p.link)}', '_blank')">
                                 Xem chi tiết
                             </button>
@@ -902,21 +901,21 @@
                         // Tạo status message mới với animated spinner
                         const messageDiv = document.createElement('div');
                         messageDiv.className = 'message bot';
-                        
+
                         const statusContent = document.createElement('div');
                         statusContent.className = 'status-message';
-                        
+
                         const text = document.createElement('span');
                         text.textContent = data.message;
-                        
+
                         const spinner = document.createElement('div');
                         spinner.className = 'status-spinner';
                         spinner.innerHTML = '<div class="status-dot"></div><div class="status-dot"></div><div class="status-dot"></div>';
-                        
+
                         statusContent.appendChild(text);
                         statusContent.appendChild(spinner);
                         messageDiv.appendChild(statusContent);
-                        
+
                         self.messagesArea.appendChild(messageDiv);
                         statusMessageElement = messageDiv;
                         self.scrollToBottom();

@@ -62,11 +62,11 @@ async def test_deep_crawl(root: str, query: str) -> List[Document]:
         deep_crawl_strategy=BestFirstCrawlingStrategy(
             max_depth=2,
             include_external=False,
-            filter_chain=FilterChain([relevance_filter, seo_filter]),
+            # filter_chain=FilterChain([relevance_filter, seo_filter]),
             # Maximum number of pages to crawl (optional)
             max_pages=100,
             # score_threshold=0.3,       # Minimum score for URLs to be crawled (optional)
-            url_scorer=keyword_scorer,
+            # url_scorer=keyword_scorer,
         ),
         scraping_strategy=LXMLWebScrapingStrategy(),
         verbose=True,
@@ -127,14 +127,14 @@ async def test_deep_crawl(root: str, query: str) -> List[Document]:
                                 print(f"Error retrieving URL: {str(e)}")
                                 final_result["link"] = None
                                 continue
-                            try:
-                                print(f"Price: {r['price']}")
-                                final_result["price"] = r["price"]
-                            except Exception as e:
-                                print(
-                                    f"Error parsing extracted price content: {str(e)}")
-                                final_result["price"] = None
-                                continue
+                            # try:
+                            #     print(f"Price: {r['price']}")
+                            #     final_result["price"] = r["price"]
+                            # except Exception as e:
+                            #     print(
+                            #         f"Error parsing extracted price content: {str(e)}")
+                            #     final_result["price"] = None
+                            #     continue
                             try:
                                 print(f"Description: {r['description']}")
                                 # Truncate long description
@@ -163,7 +163,7 @@ async def test_deep_crawl(root: str, query: str) -> List[Document]:
                                 final_result['description'],
                                 metadata={"title": final_result['name'],
                                         "url": final_result['link'],
-                                        "price": final_result['price'],
+                                        # "price": final_result['price'],
                                         "image_url": final_result['image'],
                                         "description": final_result['description']}
                             )

@@ -127,6 +127,7 @@ async def create_store(documents: List[Document], root_url: str):
     # logger.info(f"Initializing vector store for URL: {info.href}")
     try:
         await initialize_retriever(documents, root_url)
+        print("================== Vector store initialized successfully =================")
         logger.info("Vector store initialized successfully")
         return {"message": "Vector store created successfully."}
     except Exception as e:
@@ -275,7 +276,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     await websocket.send_json(package)
 
-                    await create_xpath_strategy(urls[tmp], root_url, overwrite=False)
+                    strat = await create_xpath_strategy(urls[tmp], root_url, overwrite=False)
 
                     package = {"status": "success", "message": "Extracting results..."}
 
@@ -285,18 +286,26 @@ async def websocket_endpoint(websocket: WebSocket):
                     
                     print(f"Number of products: {len(products)}")
 
-                    if len(products)<1:
+                    count=0
+
+                    strats = [strat]
+
+                    while len(products)<1 and count<5:
                         package = {"status": "success", "message": "Generating another schema..."}
 
                         await websocket.send_json(package)
 
-                        await create_xpath_strategy(urls[tmp+1], root_url, overwrite=True)
+                        strat = await create_xpath_strategy(urls[tmp+1], root_url, overwrite=True, strategy_list=strats)
+
+                        strats.append(strat)
 
                         package = {"status": "success", "message": "Extracting results..."}
 
                         products = await extract_with_generated_schema(urls[:10], root_url)
 
-                        await websocket.send_json(package)      
+                        count+=1
+
+                        # await websocket.send_json(package)      
                         
 
 
@@ -356,10 +365,22 @@ async def websocket_endpoint(websocket: WebSocket):
                     print("Message sent: Vector store already exists. Skipping crawl.")
                     docs = store_search(f"{search_query}")
                     print(f"Number of docs from store_search: {len(docs)}")
+                    final_docs = []
                     for doc in docs:
                         print("doc:", doc)
-                    package = {"status": "success", "type": "documents", "data": docs}  
-                    await websocket.send_json(package)                    
+                        final_doc = {}
+                        final_doc['name'] = doc.metadata.get('title', '')
+                        final_doc['link'] = doc.metadata.get('url', '')
+                        final_doc['description'] = doc.page_content
+                        final_doc['image'] = doc.metadata.get('image_url', '')
+                        final_docs.append(final_doc)
+                    try:                    
+                        package = {"status": "success", "type": "products", "data": final_docs}  
+                        await websocket.send_json(package)     
+                        print("Sent documents from vector store.")       
+                    except Exception as e:
+                        print("Error sending doc:", str(e))
+                            
 
             except Exception as e:
                 logger.error(f"Error in /crawl endpoint: {str(e)}", exc_info=True)

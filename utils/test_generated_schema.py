@@ -82,13 +82,13 @@ async def run_extraction(crawler: AsyncWebCrawler, urls, strategy, name):
                         print(f"Error retrieving URL: {str(e)}")
                         final_result["link"] = None
                         continue                       
-                    try:
-                        print(f"Price: {r['price']}")
-                        final_result["price"] = r["price"]
-                    except Exception as e:
-                        print(f"Error parsing extracted price content: {str(e)}")
-                        final_result["price"] = None
-                        continue
+                    # try:
+                    #     print(f"Price: {r['price']}")
+                    #     final_result["price"] = r["price"]
+                    # except Exception as e:
+                    #     print(f"Error parsing extracted price content: {str(e)}")
+                    #     final_result["price"] = None
+                    #     continue
                     try:
                         print(f"Description: {r['description']}")
                         final_result["description"] = r["description"][:200]  # Truncate long description
@@ -138,68 +138,68 @@ async def extract_with_generated_schema(urls, root):
     if schema_file.exists():
         xpath_schema = json.load(schema_file.open())
         print(f"Using cached schema: {xpath_schema}")
-    # else:
-    #     print("Generating schema via LLM...")
+    if xpath_schema is None:
+        print("Generating schema via LLM...")
 
-    #     run_config = CrawlerRunConfig(
-    #         only_text=False,  # If True, tries to remove non-text elements
-    #     )
+        run_config = CrawlerRunConfig(
+            only_text=False,  # If True, tries to remove non-text elements
+        )
 
-    #     # Get sample HTML for context
-    #     async with AsyncWebCrawler() as crawler:
-    #         result = await crawler.arun(
-    #             # "https://rangdongstore.vn/am-dien-sieu-toc-17l-rd-ast17-p1-p-221223003166",
-    #             url,
-    #             config=run_config,
-    #         )
-    #         html = result.fit_html
-    #     try:
-    #         with open("html.html", "w") as f:
-    #             f.write(html)
-    #         print("Sample HTML written to html.html for reference.")
-    #     except Exception as e:
-    #         print(f"Error writing HTML to file: {str(e)}")
+        # Get sample HTML for context
+        async with AsyncWebCrawler() as crawler:
+            result = await crawler.arun(
+                # "https://rangdongstore.vn/am-dien-sieu-toc-17l-rd-ast17-p1-p-221223003166",
+                urls[0],
+                config=run_config,
+            )
+            html = result.fit_html
+        try:
+            with open("html.html", "w") as f:
+                f.write(html)
+            print("Sample HTML written to html.html for reference.")
+        except Exception as e:
+            print(f"Error writing HTML to file: {str(e)}")
 
-    #     # # Option 1: Using OpenAI (requires API token)
-    #     # css_schema = JsonCssExtractionStrategy.generate_schema(
-    #     #     html,
-    #     #     schema_type="css",
-    #     #     # llm_config=LLMConfig(provider="openai/gpt-4o-mini",
-    #     #     #                      api_token="env:OPENAI_API_KEY",
-    #     #     #                      ),
-    #     #     llm_config=LLMConfig(provider="gemini/gemini-2.5-flash",
-    #     #                         api_token="env:GOOGLE_API_KEY",
-    #     #                         ),
-    #     # )
+        # # Option 1: Using OpenAI (requires API token)
+        # css_schema = JsonCssExtractionStrategy.generate_schema(
+        #     html,
+        #     schema_type="css",
+        #     # llm_config=LLMConfig(provider="openai/gpt-4o-mini",
+        #     #                      api_token="env:OPENAI_API_KEY",
+        #     #                      ),
+        #     llm_config=LLMConfig(provider="gemini/gemini-2.5-flash",
+        #                         api_token="env:GOOGLE_API_KEY",
+        #                         ),
+        # )
 
-    #     target_json_example = {
-    #         "name": "Product Cards",
-    #         "baseSelector": "//div[@class='product-card']",
-    #         "fields": [
-    #             {
-    #                 "name": "price",
-    #                 "selector": ".//span[@class='price']",
-    #                 "type": "text",
-    #             },
-    #         ],
-    #     }
+        target_json_example = {
+            "name": "Product Cards",
+            "baseSelector": "//div[@class='product-card']",
+            "fields": [
+                {
+                    "name": "price",
+                    "selector": ".//span[@class='price']",
+                    "type": "text",
+                },
+            ],
+        }
 
-    #     target_json_example = str(target_json_example)
+        target_json_example = str(target_json_example)
 
-    #     # Option 2: Using Ollama (open source, no token needed)
-    #     xpath_schema = JsonXPathExtractionStrategy.generate_schema(
-    #         html,
-    #         query="Product price",
-    #         schema_type="xpath",
-    #         target_json_example=target_json_example,
-    #         llm_config=LLMConfig(
-    #             provider="gemini/gemini-3-flash-preview",
-    #             api_token="env:GOOGLE_API_KEY",
-    #         ),
-    #     )
+        # Option 2: Using Ollama (open source, no token needed)
+        xpath_schema = JsonXPathExtractionStrategy.generate_schema(
+            html,
+            query="Product price",
+            schema_type="xpath",
+            target_json_example=target_json_example,
+            llm_config=LLMConfig(
+                provider="gemini/gemini-3-flash-preview",
+                api_token="env:GOOGLE_API_KEY",
+            ),
+        )
 
-    #     # Cache pattern for future use
-    #     json.dump(xpath_schema, schema_file.open("w"), indent=2)
+        # Cache pattern for future use
+        json.dump(xpath_schema, schema_file.open("w"), indent=2)
 
     xpath_strategy = JsonXPathExtractionStrategy(xpath_schema)
 
@@ -222,7 +222,7 @@ async def extract_with_generated_schema(urls, root):
     return result
 
 
-async def create_xpath_strategy(url, root, overwrite=False):
+async def create_xpath_strategy(url, root, overwrite=False, strategy_list=[]):
     print("Generating schema via LLM...")
 
     cache_dir = Path("./schema_cache")
@@ -283,12 +283,15 @@ async def create_xpath_strategy(url, root, overwrite=False):
 
         target_json_example = str(target_json_example)
 
+        # bad_examples = []
+
         # Option 2: Using Ollama (open source, no token needed)
         xpath_schema = JsonXPathExtractionStrategy.generate_schema(
             html,
             query="Product information",
             schema_type="xpath",
             # target_json_example=target_json_example,
+            bad_examples=strategy_list,
             llm_config=LLMConfig(
                 provider="gemini/gemini-3-flash-preview",
                 api_token="env:GOOGLE_API_KEY",

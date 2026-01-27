@@ -1,0 +1,22 @@
+{
+  "name": "Product Information",
+  "baseSelector": "//div[@class='sidebar-1']",
+  "fields": [
+    {
+      "name": "title",
+      "selector": ".//h1[@class='title-detail']",
+      "type": "text"
+    },
+    {
+      "name": "image_url",
+      "selector": ".//article[@class='fck_detail ']//img",
+      "type": "attribute",
+      "attribute": "src"
+    },
+    {
+      "name": "description",
+      "selector": ".//p[@class='description']",
+      "type": "text"
+    }
+  ]
+}
